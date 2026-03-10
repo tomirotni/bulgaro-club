@@ -587,6 +587,7 @@ async function registrar() {
   currentUser = data;
   sessionStorage.setItem('bulgaro_user_id', data.id);
   toast('¡Bienvenido/a, ' + nombre + '! 🎉');
+  enviarMailBienvenida(data);
   setTimeout(() => goScreen('cliente', 'tabCli'), 800);
 }
 
@@ -952,6 +953,63 @@ async function openMailModal(clienteId) {
 }
 
 function closeModal() { document.getElementById('mailModal').classList.remove('visible'); mailTargetClient=null; }
+
+async function enviarMailBienvenida(cliente) {
+  const htmlMail = `
+    <div style="font-family:'Helvetica Neue',sans-serif;max-width:520px;margin:0 auto;background:#f7f2eb;border-radius:16px;overflow:hidden">
+      <div style="background:#006646;padding:32px 28px;text-align:center">
+        <div style="font-size:11px;font-weight:800;letter-spacing:0.25em;color:rgba(255,255,255,0.6);text-transform:uppercase;margin-bottom:8px">BÚLGARO CAFÉ</div>
+        <div style="font-size:28px;font-weight:900;color:#ffffff;margin-bottom:6px">¡Bienvenido/a, ${cliente.nombre}! ☕</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.7)">Café con alma de mundo</div>
+      </div>
+      <div style="padding:32px 28px">
+        <p style="font-size:15px;color:#333;line-height:1.7;margin-bottom:24px">
+          Ya sos parte de <strong>Búlgaro Club</strong>. A partir de ahora cada visita suma puntos que podés canjear por experiencias y productos exclusivos.
+        </p>
+        <div style="background:#006646;border-radius:12px;padding:20px 24px;margin-bottom:20px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.2em;color:rgba(255,255,255,0.65);text-transform:uppercase;margin-bottom:14px">Cómo funciona</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+            <span style="font-size:20px">⭐</span>
+            <span style="font-size:13px;color:#fff;font-weight:600">1 punto por cada $1.000 que gastás</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+            <span style="font-size:20px">🎁</span>
+            <span style="font-size:13px;color:#fff;font-weight:600">Canjeá por premios y experiencias exclusivas</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+            <span style="font-size:20px">⏰</span>
+            <span style="font-size:13px;color:#fff;font-weight:600">Puntos dobles en horarios especiales</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:20px">🎂</span>
+            <span style="font-size:13px;color:#fff;font-weight:600">Un café gratis el día de tu cumpleaños</span>
+          </div>
+        </div>
+        <div style="text-align:center;margin-bottom:20px">
+          <a href="https://bulgaroclub.netlify.app" style="display:inline-block;background:#b68150;color:#fff;font-weight:800;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;padding:14px 28px;border-radius:40px;text-decoration:none">Ver mis puntos →</a>
+        </div>
+        <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #b68150">
+          <p style="font-size:12px;color:#888;margin:0">📍 Pasate por Búlgaro, pedí tu consumición y decile a nuestro equipo que sos parte del club para que te sumen los puntos.</p>
+        </div>
+      </div>
+      <div style="background:#e8e0d0;padding:18px 28px;text-align:center">
+        <p style="font-size:11px;color:#aaa;margin:0">Búlgaro Café · Bahía Blanca, Argentina<br>Recibiste este mail porque te registraste en Búlgaro Club.</p>
+      </div>
+    </div>
+  `;
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer re_hnnqUhwU_HEDMVrxpvEE989hnMjFaQMki', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Búlgaro Club <onboarding@resend.dev>',
+        to: [cliente.mail],
+        subject: '¡Bienvenido/a a Búlgaro Club, ' + cliente.nombre + '! ☕',
+        html: htmlMail
+      })
+    });
+  } catch(e) { console.log('Welcome mail error:', e); }
+}
 
 async function enviarMail() {
   if(!mailTargetClient) return;
