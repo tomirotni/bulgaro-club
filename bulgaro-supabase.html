@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Búlgaro — Fidelización</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --verde: #006646;
+  --verde-dark: #004d33;
+  --verde-light: #008a5c;
+  --marron: #b68150;
+  --marron-light: #c9975f;
+  --negro: #0a0a0a;
+  --negro2: #111;
+  --negro3: #1a1a1a;
+  --crema: #f7f2eb;
+  --blanco: #ffffff;
+  --gris: #666;
+  --rojo: #e05a5a;
+  --font: 'Montserrat', sans-serif;
+  --radius: 18px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; }
+body { font-family:var(--font); background:var(--negro); color:var(--blanco); min-height:100vh; overflow-x:hidden; }
+
+/* SCREENS */
+.screen { display:none; min-height:100vh; animation:fadeIn 0.35s ease; }
+.screen.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* LOADING */
+#loadingOverlay {
+  position:fixed; inset:0; background:var(--negro); z-index:999;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+}
+#loadingOverlay.hidden { display:none; }
+.spinner {
+  width:40px; height:40px; border-radius:50%;
+  border:3px solid rgba(182,129,80,0.2);
+  border-top-color:var(--marron);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.loading-txt { font-size:12px; font-weight:600; letter-spacing:0.15em; color:rgba(255,255,255,0.4); text-transform:uppercase; }
+
+/* NAV */
+.app-nav {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  height:56px; background:rgba(10,10,10,0.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(182,129,80,0.15);
+  display:flex; align-items:center; padding:0 16px; gap:6px;
+}
+.nav-brand { font-size:11px; font-weight:800; letter-spacing:0.28em; color:var(--marron); text-transform:uppercase; margin-right:auto; }
+.nav-tab {
+  padding:7px 13px; border-radius:20px; font-size:11px;
+  font-weight:700; letter-spacing:0.05em; cursor:pointer;
+  border:1px solid transparent; transition:all 0.2s; text-transform:uppercase;
+}
+.nav-tab.active { background:var(--verde); color:var(--blanco); }
+.nav-tab:not(.active) { border-color:rgba(255,255,255,0.1); color:rgba(255,255,255,0.38); }
+.nav-tab:not(.active):hover { border-color:var(--marron); color:var(--marron); }
+
+/* ── REGISTRO ── */
+#registro { padding-top:56px; }
+.reg-hero {
+  background:linear-gradient(160deg,var(--verde-dark) 0%,#002d1a 100%);
+  padding:36px 24px 28px; text-align:center; position:relative; overflow:hidden;
+}
+.reg-hero::before { content:''; position:absolute; top:-80px; right:-80px; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle,rgba(182,129,80,0.12) 0%,transparent 65%); }
+.reg-logo { width:70px; height:70px; border-radius:50%; background:var(--marron); margin:0 auto 16px; display:flex; align-items:center; justify-content:center; font-size:30px; box-shadow:0 8px 28px rgba(182,129,80,0.35); }
+.reg-titulo { font-size:22px; font-weight:900; letter-spacing:-0.02em; margin-bottom:6px; }
+.reg-sub { font-size:13px; color:rgba(255,255,255,0.5); line-height:1.5; }
+.reg-body { padding:28px 24px 40px; }
+.reg-form-tit { font-size:10px; font-weight:700; letter-spacing:0.22em; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:20px; }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.field-group { margin-bottom:14px; }
+.field-label { font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.38); margin-bottom:7px; display:block; }
+.field-input {
+  width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px; padding:13px 16px; color:var(--blanco); font-family:var(--font);
+  font-size:14px; font-weight:500; outline:none; transition:border-color 0.2s, background 0.2s;
+  -webkit-appearance:none;
+}
+.field-input:focus { border-color:var(--marron); background:rgba(182,129,80,0.06); }
+.field-input::placeholder { color:rgba(255,255,255,0.2); }
+.bday-note { background:rgba(182,129,80,0.08); border:1px solid rgba(182,129,80,0.2); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+.bday-note-txt { font-size:12px; color:rgba(255,255,255,0.55); line-height:1.4; }
+.bday-note-txt strong { color:var(--marron); }
+.btn-main { width:100%; padding:16px; border-radius:14px; background:var(--verde); color:var(--blanco); font-family:var(--font); font-size:14px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; border:none; cursor:pointer; transition:all 0.2s; box-shadow:0 8px 24px rgba(0,102,70,0.3); }
+.btn-main:hover { background:var(--verde-light); transform:translateY(-1px); }
+.btn-main:disabled { background:rgba(255,255,255,0.08); cursor:not-allowed; transform:none; box-shadow:none; }
+.ya-cliente { text-align:center; margin-top:18px; font-size:13px; color:rgba(255,255,255,0.35); }
+.ya-cliente span { color:var(--marron); font-weight:700; cursor:pointer; text-decoration:underline; }
+.login-box { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius); padding:22px; display:none; margin-top:20px; }
+.login-box.visible { display:block; }
+.login-title { font-size:13px; font-weight:700; margin-bottom:14px; }
+.login-row { display:flex; gap:8px; }
+.login-row .field-input { flex:1; }
+.btn-login { padding:12px 16px; border-radius:11px; background:var(--marron); border:none; color:var(--blanco); font-family:var(--font); font-size:12px; font-weight:800; cursor:pointer; }
+
+/* ── CLIENTE ── */
+#cliente { padding-top:56px; }
+.cli-hero { background:linear-gradient(160deg,var(--verde-dark) 0%,#003322 100%); padding:32px 24px 0; position:relative; overflow:hidden; }
+.cli-saludo { font-size:11px; font-weight:600; letter-spacing:0.2em; color:rgba(255,255,255,0.4); text-transform:uppercase; margin-bottom:4px; }
+.cli-nombre { font-size:26px; font-weight:900; letter-spacing:-0.02em; }
+.cli-nombre span { color:var(--marron); }
+.pts-card { margin:24px 0 0; background:linear-gradient(135deg,var(--marron) 0%,#7a5030 100%); border-radius:20px 20px 0 0; padding:26px 26px 36px; position:relative; overflow:hidden; }
+.pts-card::before { content:''; position:absolute; top:-40px; right:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.06); }
+.pts-lbl { font-size:10px; font-weight:700; letter-spacing:0.22em; color:rgba(255,255,255,0.65); text-transform:uppercase; margin-bottom:8px; }
+.pts-num { font-size:68px; font-weight:900; line-height:1; letter-spacing:-0.04em; }
+.pts-suf { font-size:18px; font-weight:600; color:rgba(255,255,255,0.65); margin-left:4px; }
+.pts-bar-row { margin-top:16px; display:flex; align-items:center; gap:10px; }
+.pts-bar { flex:1; height:5px; background:rgba(255,255,255,0.22); border-radius:3px; overflow:hidden; }
+.pts-bar-fill { height:100%; background:var(--blanco); border-radius:3px; transition:width 1.2s cubic-bezier(.22,1,.36,1); width:0%; }
+.pts-bar-txt { font-size:11px; font-weight:600; color:rgba(255,255,255,0.75); white-space:nowrap; }
+.mult-strip { margin:0 20px; background:linear-gradient(90deg,#006646,#008a5c); border-radius:14px; padding:12px 16px; display:flex; align-items:center; gap:12px; transform:translateY(-12px); border:1px solid rgba(182,129,80,0.25); }
+.mult-badge { background:var(--marron); color:var(--blanco); font-size:14px; font-weight:900; padding:5px 9px; border-radius:8px; }
+.mult-title { font-size:13px; font-weight:700; }
+.mult-sub { font-size:11px; color:rgba(255,255,255,0.6); margin-top:2px; }
+.no-mult { margin:0 20px; transform:translateY(-12px); background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:14px; padding:12px 16px; font-size:12px; color:rgba(255,255,255,0.28); text-align:center; }
+.bday-banner { margin:0 20px 16px; background:linear-gradient(135deg,#b68150,#7a5030); border-radius:16px; padding:18px 20px; align-items:center; gap:14px; display:none; }
+.bday-banner.visible { display:flex; }
+.bday-emoji { font-size:34px; }
+.bday-title { font-size:16px; font-weight:900; }
+.bday-sub { font-size:12px; color:rgba(255,255,255,0.7); margin-top:3px; }
+.bday-code { background:rgba(0,0,0,0.25); border-radius:8px; padding:6px 10px; margin-top:8px; display:inline-block; font-size:15px; font-weight:900; letter-spacing:0.18em; }
+.sec { padding:0 20px 24px; }
+.sec-title { font-size:10px; font-weight:700; letter-spacing:0.22em; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-bottom:14px; }
+.premios-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.premio-card { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:16px 14px; cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden; }
+.premio-card:not(.locked):hover { border-color:var(--marron); background:rgba(182,129,80,0.07); transform:translateY(-2px); }
+.premio-card.locked { opacity:0.35; }
+.p-emoji { font-size:26px; margin-bottom:10px; display:block; }
+.p-nombre { font-size:12px; font-weight:700; line-height:1.3; margin-bottom:10px; }
+.p-row { display:flex; align-items:center; justify-content:space-between; }
+.p-pts { font-size:12px; font-weight:800; color:var(--marron); }
+.p-stock { font-size:10px; color:rgba(255,255,255,0.3); }
+.p-btn { margin-top:10px; width:100%; padding:8px; border-radius:8px; background:var(--verde); color:var(--blanco); font-size:11px; font-weight:700; letter-spacing:0.05em; border:none; cursor:pointer; font-family:var(--font); text-transform:uppercase; }
+.p-btn:disabled { background:rgba(255,255,255,0.06); cursor:not-allowed; color:rgba(255,255,255,0.25); }
+.p-excl { position:absolute; top:9px; right:9px; background:var(--marron); color:var(--blanco); font-size:8px; font-weight:800; padding:3px 6px; border-radius:4px; letter-spacing:0.08em; text-transform:uppercase; }
+.hist-item { display:flex; align-items:center; gap:14px; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.h-icon { width:38px; height:38px; border-radius:11px; background:rgba(0,102,70,0.18); border:1px solid rgba(0,102,70,0.22); display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+.h-info { flex:1; }
+.h-desc { font-size:13px; font-weight:600; }
+.h-date { font-size:11px; color:var(--gris); margin-top:2px; }
+.h-pts { font-size:14px; font-weight:800; }
+.h-pts.pos { color:var(--marron); }
+.h-pts.neg { color:var(--rojo); }
+
+/* ── ADMIN ── */
+#admin { padding-top:56px; background:var(--negro2); padding-bottom:40px; }
+.adm-hero { background:linear-gradient(135deg,var(--verde-dark) 0%,#002d1a 100%); padding:28px 24px 24px; border-bottom:1px solid rgba(182,129,80,0.15); }
+.adm-tag { font-size:10px; font-weight:700; letter-spacing:0.25em; color:var(--marron); text-transform:uppercase; margin-bottom:5px; }
+.adm-h { font-size:24px; font-weight:900; letter-spacing:-0.02em; }
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:18px 20px; }
+.stat-box { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:14px 10px; text-align:center; }
+.stat-num { font-size:26px; font-weight:900; color:var(--marron); line-height:1; }
+.stat-lbl { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-top:4px; }
+.adm-sec { padding:0 20px 24px; }
+.adm-sec-tit { font-size:10px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:rgba(255,255,255,0.28); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.adm-sec-tit::after { content:''; flex:1; height:1px; background:rgba(255,255,255,0.07); }
+.compra-card { background:rgba(0,102,70,0.08); border:1px solid rgba(0,102,70,0.22); border-radius:16px; padding:18px; }
+.compra-title { font-size:13px; font-weight:700; margin-bottom:14px; }
+.search-row { display:flex; gap:8px; margin-bottom:10px; }
+.search-row .field-input { flex:1; }
+.btn-buscar { padding:12px 16px; border-radius:11px; background:var(--marron); border:none; color:var(--blanco); font-family:var(--font); font-size:12px; font-weight:800; cursor:pointer; }
+.cliente-chip { background:rgba(0,102,70,0.15); border:1px solid rgba(0,102,70,0.28); border-radius:11px; padding:11px 14px; display:none; align-items:center; gap:10px; margin-bottom:10px; }
+.cliente-chip.visible { display:flex; }
+.chip-av { width:34px; height:34px; border-radius:50%; background:var(--verde); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; flex-shrink:0; }
+.chip-name { font-size:13px; font-weight:700; }
+.chip-pts { font-size:11px; color:var(--marron); font-weight:600; }
+.chip-mult { margin-left:auto; background:var(--verde); font-size:10px; font-weight:800; padding:4px 8px; border-radius:6px; }
+.monto-row { display:flex; gap:8px; }
+.monto-row .field-input { flex:1; }
+.btn-sumar { padding:12px 16px; border-radius:11px; background:var(--verde); border:none; color:var(--blanco); font-family:var(--font); font-size:12px; font-weight:800; cursor:pointer; }
+.bday-list-item { background:rgba(182,129,80,0.07); border:1px solid rgba(182,129,80,0.18); border-radius:14px; padding:14px 16px; display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.bday-item-info { flex:1; }
+.bday-item-name { font-size:14px; font-weight:700; }
+.bday-item-mail { font-size:11px; color:var(--gris); margin-top:2px; }
+.btn-send-mail { padding:9px 14px; border-radius:10px; background:var(--marron); border:none; color:var(--blanco); font-family:var(--font); font-size:11px; font-weight:800; cursor:pointer; }
+.btn-send-mail.sent { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.35); cursor:default; }
+.mult-card-adm { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:12px; }
+.mult-card-adm.on { border-color:rgba(0,102,70,0.38); background:rgba(0,102,70,0.07); }
+.mult-icon-adm { width:42px; height:42px; border-radius:12px; background:rgba(182,129,80,0.1); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.mult-info-adm { flex:1; }
+.mult-name-adm { font-size:13px; font-weight:700; }
+.mult-det-adm { font-size:11px; color:var(--gris); margin-top:2px; }
+.mult-val { font-size:17px; font-weight:900; color:var(--marron); margin-right:10px; }
+.toggle { position:relative; width:42px; height:23px; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; position:absolute; }
+.tslider { position:absolute; inset:0; background:rgba(255,255,255,0.1); border-radius:12px; cursor:pointer; transition:0.25s; }
+.tslider::before { content:''; position:absolute; width:17px; height:17px; left:3px; top:3px; background:var(--blanco); border-radius:50%; transition:0.25s; }
+.toggle input:checked + .tslider { background:var(--verde); }
+.toggle input:checked + .tslider::before { transform:translateX(19px); }
+.premio-adm-item { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:13px; padding:13px 15px; margin-bottom:9px; display:flex; align-items:center; gap:12px; }
+.pa-emoji { font-size:22px; flex-shrink:0; }
+.pa-info { flex:1; }
+.pa-name { font-size:13px; font-weight:700; }
+.pa-meta { font-size:11px; color:var(--gris); margin-top:3px; display:flex; gap:10px; }
+.pa-pts { color:var(--marron); font-weight:700; }
+.btn-del { padding:6px 12px; border-radius:8px; background:rgba(224,90,90,0.08); border:1px solid rgba(224,90,90,0.18); color:var(--rojo); font-size:11px; font-weight:600; cursor:pointer; font-family:var(--font); }
+.add-box { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:18px; }
+.add-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.add-full { grid-column:1/-1; }
+.btn-pub { width:100%; padding:14px; border-radius:12px; background:var(--verde); color:var(--blanco); font-family:var(--font); font-size:13px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; border:none; cursor:pointer; }
+.cli-row { display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.cli-row-av { width:36px; height:36px; border-radius:50%; background:var(--verde-dark); border:1px solid var(--verde); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; flex-shrink:0; }
+.cli-row-info { flex:1; }
+.cli-row-name { font-size:13px; font-weight:700; }
+.cli-row-mail { font-size:11px; color:var(--gris); margin-top:2px; }
+.cli-row-pts { font-size:13px; font-weight:800; color:var(--marron); }
+
+/* MODAL */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:500; display:none; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(6px); }
+.modal-overlay.visible { display:flex; animation:fadeIn 0.25s ease; }
+.modal-box { background:var(--negro3); border:1px solid rgba(182,129,80,0.25); border-radius:20px; width:100%; max-width:400px; overflow:hidden; }
+.modal-header { background:linear-gradient(135deg,var(--marron),#7a5030); padding:22px 22px 18px; }
+.modal-from { font-size:10px; color:rgba(255,255,255,0.55); font-weight:600; letter-spacing:0.1em; margin-bottom:4px; }
+.modal-subject { font-size:15px; font-weight:900; }
+.modal-to { font-size:11px; color:rgba(255,255,255,0.55); margin-top:4px; }
+.modal-body { padding:22px; }
+.mail-preview { background:var(--crema); border-radius:12px; padding:18px; color:var(--negro); font-size:13px; line-height:1.7; }
+.mail-logo { font-size:10px; font-weight:800; letter-spacing:0.2em; color:var(--verde); text-transform:uppercase; margin-bottom:10px; }
+.mail-h { font-size:17px; font-weight:900; margin-bottom:8px; }
+.mail-code-box { background:var(--verde); color:var(--blanco); border-radius:10px; padding:13px; text-align:center; margin:12px 0; font-size:20px; font-weight:900; letter-spacing:0.2em; }
+.mail-fine { font-size:11px; color:#888; margin-top:10px; }
+.modal-footer { padding:0 22px 22px; display:flex; gap:10px; }
+.btn-modal-close { flex:1; padding:13px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.55); font-family:var(--font); font-size:13px; font-weight:700; cursor:pointer; }
+.btn-modal-send { flex:2; padding:13px; border-radius:12px; background:var(--verde); border:none; color:var(--blanco); font-family:var(--font); font-size:13px; font-weight:800; cursor:pointer; }
+
+/* TOAST */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(90px); background:var(--verde); color:var(--blanco); padding:13px 22px; border-radius:40px; font-size:13px; font-weight:700; z-index:999; transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1); white-space:nowrap; box-shadow:0 8px 28px rgba(0,102,70,0.45); pointer-events:none; }
+.toast.show { transform:translateX(-50%) translateY(0); }
+.toast.error { background:var(--rojo); }
+
+.empty-state { font-size:12px; color:var(--gris); padding:12px 0; }
+.pad { height:32px; }
+.btn-secondary-emp { width:100%; padding:11px; border-radius:11px; background:transparent; border:1px solid rgba(224,90,90,0.3); color:var(--rojo); font-family:var(--font); font-size:12px; font-weight:700; cursor:pointer; letter-spacing:0.05em; }
+.venc-note { background:rgba(182,129,80,0.07); border:1px solid rgba(182,129,80,0.18); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px; margin-bottom:14px; font-size:12px; color:rgba(255,255,255,0.5); line-height:1.5; }
+.venc-note strong { color:var(--marron); }
+input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity(0.4); }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-txt">Cargando Búlgaro...</div>
+</div>
+
+<!-- NAV -->
+<nav class="app-nav">
+  <div class="nav-brand">Búlgaro</div>
+  <div class="nav-tab active" id="tabReg" onclick="goScreen('registro','tabReg')">Registrarse</div>
+  <div class="nav-tab" id="tabCli" onclick="goScreen('cliente','tabCli')">Mi cuenta</div>
+  <div class="nav-tab" id="tabEmp" onclick="pedirPasswordEmpleado()">Empleado</div>
+  <div class="nav-tab" id="tabAdm" onclick="pedirPasswordAdmin()">Admin</div>
+</nav>
+
+<!-- ══ REGISTRO ══ -->
+<div class="screen active" id="registro">
+  <div class="reg-hero">
+    <div class="reg-logo">☕</div>
+    <div class="reg-titulo">Búlgaro Fidelización</div>
+    <div class="reg-sub">Sumate al programa y empezá a ganar puntos<br>con cada visita. <em>Café con alma de mundo.</em></div>
+  </div>
+  <div class="reg-body">
+    <div class="reg-form-tit">Crear tu cuenta</div>
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">Nombre</label>
+        <input class="field-input" id="rNombre" type="text" placeholder="Martín">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Apellido</label>
+        <input class="field-input" id="rApellido" type="text" placeholder="García">
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Email</label>
+      <input class="field-input" id="rMail" type="email" placeholder="martin@email.com">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Celular</label>
+      <input class="field-input" id="rCel" type="tel" placeholder="+54 291 ...">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Fecha de nacimiento</label>
+      <input class="field-input" id="rBday" type="date">
+    </div>
+    <div class="bday-note">
+      <span style="font-size:22px">🎂</span>
+      <div class="bday-note-txt">Tu cumpleaños: <strong>un café gratis te espera</strong>. Te avisamos por mail con tu código.</div>
+    </div>
+    <button class="btn-main" id="btnRegistrar" onclick="registrar()">Crear mi cuenta</button>
+    <div class="ya-cliente">¿Ya tenés cuenta? <span onclick="toggleLogin()">Ingresá acá</span></div>
+    <div class="login-box" id="loginBox">
+      <div class="login-title">Ingresá con tu email</div>
+      <div class="login-row">
+        <input class="field-input" id="loginMail" type="email" placeholder="tu@email.com">
+        <button class="btn-login" onclick="login()">Entrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CLIENTE ══ -->
+<div class="screen" id="cliente">
+  <div class="cli-hero">
+    <div class="cli-saludo">Bienvenido de vuelta</div>
+    <div class="cli-nombre">Hola, <span id="cliNombre">—</span> 👋</div>
+    <div class="pts-card">
+      <div class="pts-lbl">Tus puntos acumulados</div>
+      <div><span class="pts-num" id="cliPts">0</span><span class="pts-suf"> pts</span></div>
+      <div class="pts-bar-row">
+        <div class="pts-bar"><div class="pts-bar-fill" id="ptsFill"></div></div>
+        <div class="pts-bar-txt" id="ptsNext">—</div>
+      </div>
+    </div>
+  </div>
+  <div id="multStrip" class="mult-strip" style="display:none">
+    <div class="mult-badge" id="multVal">×2</div>
+    <div><div class="mult-title" id="multNombre">—</div><div class="mult-sub" id="multDesc">—</div></div>
+  </div>
+  <div id="noMultStrip" class="no-mult">Sin multiplicadores activos ahora</div>
+  <div style="padding:0 20px;transform:translateY(-4px)">
+    <div class="venc-note" id="vencNote" style="display:none">⚠️ <div><strong>Tus puntos vencen pronto.</strong> No registramos actividad hace más de 2 meses. Pasate por Búlgaro para mantenerlos.</div></div>
+  </div>
+  <div class="bday-banner" id="bdayBanner">
+    <div class="bday-emoji">🎂</div>
+    <div><div class="bday-title">¡Feliz cumpleaños!</div><div class="bday-sub">Tu café gratis te espera hoy</div><div class="bday-code" id="bdayCode">—</div></div>
+  </div>
+  <div class="sec"><div class="sec-title">Premios disponibles</div><div class="premios-grid" id="premiosGrid"></div></div>
+  <div class="sec"><div class="sec-title">Últimas visitas</div><div id="histList"></div></div>
+  <div class="pad"></div>
+</div>
+
+<!-- ══ ADMIN ══ -->
+<!-- ══ EMPLEADO ══ -->
+<div class="screen" id="empleado">
+  <div class="adm-hero" style="background:linear-gradient(135deg,#1a3a2a 0%,#0d1f16 100%)">
+    <div class="adm-tag">Panel de empleado</div>
+    <div class="adm-h">Registrar compra ☕</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:6px">Operando como: <span id="empNombre" style="color:var(--marron);font-weight:700">—</span></div>
+  </div>
+  <div class="adm-sec" style="padding-top:20px">
+    <div class="adm-sec-tit">Buscar cliente</div>
+    <div class="compra-card">
+      <div class="search-row">
+        <input class="field-input" id="empSearch" type="text" placeholder="Nombre, email o celular...">
+        <button class="btn-buscar" onclick="empBuscar()">Buscar</button>
+      </div>
+      <div class="cliente-chip" id="empChip">
+        <div class="chip-av" id="empChipAv">?</div>
+        <div><div class="chip-name" id="empChipName">—</div><div class="chip-pts" id="empChipPts">—</div></div>
+        <div class="chip-mult" id="empChipMult" style="display:none">×2</div>
+      </div>
+      <div class="monto-row">
+        <input class="field-input" id="empMonto" type="number" placeholder="Monto de la compra ($)">
+        <button class="btn-sumar" onclick="empSumarPuntos()">Sumar pts</button>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn-secondary-emp" onclick="empRestarPuntos()">— Corregir / restar puntos</button>
+      </div>
+    </div>
+  </div>
+  <div class="adm-sec">
+    <div class="adm-sec-tit">Mi actividad de hoy</div>
+    <div id="empActividad"><div class="empty-state">Aún no registraste compras en este turno.</div></div>
+  </div>
+  <div class="pad"></div>
+</div>
+
+<div class="screen" id="admin">
+  <div class="adm-hero"><div class="adm-tag">Panel de administración</div><div class="adm-h">Búlgaro Café ☕</div></div>
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num" id="sClientes">—</div><div class="stat-lbl">Clientes</div></div>
+    <div class="stat-box"><div class="stat-num" id="sCanjes">—</div><div class="stat-lbl">Canjes</div></div>
+    <div class="stat-box"><div class="stat-num" id="sBdays">—</div><div class="stat-lbl">Cumple. hoy</div></div>
+  </div>
+  <!-- registrar compra -->
+  <div class="adm-sec">
+    <div class="adm-sec-tit">Registrar compra</div>
+    <div class="compra-card">
+      <div class="compra-title">Buscar cliente</div>
+      <div class="search-row">
+        <input class="field-input" id="admSearch" type="text" placeholder="Nombre, email o celular...">
+        <button class="btn-buscar" onclick="admBuscar()">Buscar</button>
+      </div>
+      <div class="cliente-chip" id="admChip">
+        <div class="chip-av" id="admChipAv">?</div>
+        <div><div class="chip-name" id="admChipName">—</div><div class="chip-pts" id="admChipPts">—</div></div>
+        <div class="chip-mult" id="admChipMult" style="display:none">×2</div>
+      </div>
+      <div class="monto-row">
+        <input class="field-input" id="admMonto" type="number" placeholder="Monto de la compra ($)">
+        <button class="btn-sumar" onclick="admSumarPuntos()">Sumar pts</button>
+      </div>
+    </div>
+  </div>
+  <!-- cumpleaños hoy -->
+  <div class="adm-sec"><div class="adm-sec-tit">Cumpleaños hoy 🎂</div><div id="bdayHoy"></div></div>
+  <!-- multiplicadores -->
+  <div class="adm-sec"><div class="adm-sec-tit">Multiplicadores</div><div id="multList"></div></div>
+  <!-- premios -->
+  <div class="adm-sec">
+    <div class="adm-sec-tit">Premios activos</div>
+    <div id="premiosAdm"></div>
+    <div class="adm-sec-tit" style="margin-top:20px">Agregar premio</div>
+    <div class="add-box">
+      <div class="add-row">
+        <div class="field-group add-full"><label class="field-label">Nombre</label><input class="field-input" id="newNombre" type="text" placeholder="Blend Kenya edición limitada"></div>
+      </div>
+      <div class="add-row">
+        <div class="field-group"><label class="field-label">Puntos</label><input class="field-input" id="newPts" type="number" placeholder="300"></div>
+        <div class="field-group"><label class="field-label">Stock</label><input class="field-input" id="newStock" type="number" placeholder="5"></div>
+      </div>
+      <div class="add-row">
+        <div class="field-group"><label class="field-label">Tipo</label><select class="field-input" id="newTipo" style="appearance:none"><option>Producto</option><option>Experiencia</option><option>Exclusivo</option></select></div>
+        <div class="field-group"><label class="field-label">Emoji</label><input class="field-input" id="newEmoji" type="text" placeholder="☕"></div>
+      </div>
+      <button class="btn-pub" onclick="admAgregarPremio()">Publicar premio</button>
+    </div>
+  </div>
+  <!-- clientes -->
+  <div class="adm-sec"><div class="adm-sec-tit">Actividad de empleados 👷</div><div id="empActividadAdmin"><div class="empty-state">Sin actividad registrada hoy.</div></div></div>
+  <div class="adm-sec"><div class="adm-sec-tit">Todos los clientes</div><div id="clientesList"></div></div>
+  <div class="pad"></div>
+</div>
+
+<!-- MODAL MAIL CUMPLEAÑOS -->
+<div class="modal-overlay" id="mailModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-from">DE: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1e70716c7b6e72675e7c6b72797f6c71307d7173307f6c">[email&#160;protected]</a></div>
+      <div class="modal-subject">🎂 ¡Feliz cumpleaños! Tu café te espera</div>
+      <div class="modal-to" id="modalTo">PARA: —</div>
+    </div>
+    <div class="modal-body">
+      <div class="mail-preview">
+        <div class="mail-logo">BÚLGARO CAFÉ</div>
+        <div class="mail-h" id="mailH">¡Feliz cumple!</div>
+        <div>Hoy es un día especial y en Búlgaro lo queremos celebrar con vos. Presentá este código:</div>
+        <div class="mail-code-box" id="mailCode">BDAY-XXXX</div>
+        <div>Tu barista te prepara el café que más te guste. <strong>Sin costo, sin vueltas.</strong></div>
+        <div class="mail-fine">Válido solo hoy. Presentá este código en caja. Un uso por persona.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" onclick="closeModal()">Cancelar</button>
+      <button class="btn-modal-send" id="btnEnviarMail" onclick="enviarMail()">Enviar mail ✓</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════
+// PASSWORDS
+// ══════════════════════════════
+const ADMIN_PASS = 'bulgaro2024';
+const EMP_PASSWORDS = { 'emp1': 'Anto', 'emp2': 'Ale', 'emp3': 'Bocha' };
+let adminUnlocked = false;
+let empleadoActual = null;
+let empTurnoActividad = [];
+
+function pedirPasswordAdmin() {
+  if(adminUnlocked) { goScreen('admin','tabAdm'); return; }
+  const pass = prompt('Contraseña de administrador:');
+  if(pass === ADMIN_PASS) { adminUnlocked = true; goScreen('admin','tabAdm'); }
+  else if(pass !== null) toast('Contraseña incorrecta', true);
+}
+
+function pedirPasswordEmpleado() {
+  if(empleadoActual) { goScreen('empleado','tabEmp'); return; }
+  const pass = prompt('Contraseña de empleado:');
+  if(!pass) return;
+  const entry = Object.entries(EMP_PASSWORDS).find(([k,v]) => v.toLowerCase() === pass.toLowerCase());
+  if(entry) {
+    empleadoActual = { key: entry[0], nombre: entry[1] };
+    empTurnoActividad = [];
+    document.getElementById('empNombre').textContent = entry[1];
+    goScreen('empleado','tabEmp');
+    renderEmpActividad();
+  } else {
+    toast('Contraseña incorrecta', true);
+  }
+}
+
+// ══════════════════════════════
+// SUPABASE — Pure fetch
+// ══════════════════════════════
+const SUPA_URL = 'https://ilujvtlyuibxsobiqmjo.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsdWp2dGx5dWlieHNvYmlxbWpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwOTA4MzgsImV4cCI6MjA4ODY2NjgzOH0.RbKDlSw7c2RTX-QOJdzAf_Hr2O_c0G1JxVIgv99P2BM';
+const H = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+
+async function dbSelect(table, filters={}, opts={}) {
+  let url = `${SUPA_URL}/rest/v1/${table}?select=${opts.cols||'*'}`;
+  Object.entries(filters).forEach(([k,v]) => url += `&${k}=eq.${encodeURIComponent(v)}`);
+  if(opts.gte) url += `&${opts.gte[0]}=gte.${encodeURIComponent(opts.gte[1])}`;
+  if(opts.order) url += `&order=${opts.order}.${opts.asc!==false?'asc':'desc'}`;
+  if(opts.limit) url += `&limit=${opts.limit}`;
+  const r = await fetch(url, { headers: H });
+  const data = await r.json();
+  return r.ok ? data : [];
+}
+
+async function dbInsert(table, row) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/${table}`, { method:'POST', headers:H, body:JSON.stringify(row) });
+  const data = await r.json();
+  return r.ok ? (Array.isArray(data) ? data[0] : data) : null;
+}
+
+async function dbUpdate(table, filters, vals) {
+  let url = `${SUPA_URL}/rest/v1/${table}?`;
+  Object.entries(filters).forEach(([k,v]) => url += `${k}=eq.${encodeURIComponent(v)}&`);
+  const r = await fetch(url, { method:'PATCH', headers:H, body:JSON.stringify(vals) });
+  return r.ok;
+}
+
+// ══════════════════════════════
+// STATE
+// ══════════════════════════════
+let currentUser = null;
+let admSelectedClient = null;
+let empSelectedClient = null;
+let mailTargetClient = null;
+
+// ══════════════════════════════
+// INIT
+// ══════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  hideLoading();
+  const savedId = sessionStorage.getItem('bulgaro_user_id');
+  if(savedId) {
+    try {
+      const rows = await dbSelect('clientes', { id: savedId });
+      if(rows && rows[0]) currentUser = rows[0];
+    } catch(e) {}
+  }
+});
+
+function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
+
+// ══════════════════════════════
+// NAVIGATION
+// ══════════════════════════════
+function goScreen(id, tabId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+  if(id === 'cliente') renderCliente();
+  if(id === 'admin') renderAdmin();
+}
+
+// ══════════════════════════════
+// REGISTRO
+// ══════════════════════════════
+function toggleLogin() { document.getElementById('loginBox').classList.toggle('visible'); }
+
+async function registrar() {
+  const nombre = document.getElementById('rNombre').value.trim();
+  const apellido = document.getElementById('rApellido').value.trim();
+  const mail = document.getElementById('rMail').value.trim().toLowerCase();
+  const celular = document.getElementById('rCel').value.trim();
+  const fecha_nacimiento = document.getElementById('rBday').value;
+  if(!nombre||!apellido||!mail||!celular||!fecha_nacimiento) { toast('Completá todos los campos', true); return; }
+  const btn = document.getElementById('btnRegistrar');
+  btn.disabled = true; btn.textContent = 'Registrando...';
+  const data = await dbInsert('clientes', { nombre, apellido, mail, celular, fecha_nacimiento, puntos: 0, bday_sent: false });
+  btn.disabled = false; btn.textContent = 'Crear mi cuenta';
+  if(!data) { toast('Error al registrar. El email ya puede estar en uso.', true); return; }
+  currentUser = data;
+  sessionStorage.setItem('bulgaro_user_id', data.id);
+  toast('¡Bienvenido/a, ' + nombre + '! 🎉');
+  setTimeout(() => goScreen('cliente', 'tabCli'), 800);
+}
+
+async function login() {
+  const mail = document.getElementById('loginMail').value.trim().toLowerCase();
+  if(!mail) { toast('Ingresá tu email', true); return; }
+  const rows = await dbSelect('clientes', { mail });
+  if(!rows || rows.length === 0) { toast('No encontramos esa cuenta', true); return; }
+  currentUser = rows[0];
+  sessionStorage.setItem('bulgaro_user_id', currentUser.id);
+  toast('¡Hola, ' + currentUser.nombre + '! 👋');
+  setTimeout(() => goScreen('cliente', 'tabCli'), 700);
+}
+
+// ══════════════════════════════
+// CLIENTE
+// ══════════════════════════════
+async function renderCliente() {
+  if(!currentUser) { goScreen('registro','tabReg'); return; }
+  const rows = await dbSelect('clientes', { id: currentUser.id });
+  if(rows && rows[0]) currentUser = rows[0];
+
+  document.getElementById('cliNombre').textContent = currentUser.nombre;
+  document.getElementById('cliPts').textContent = currentUser.puntos;
+
+  // Premios
+  const premios = await dbSelect('premios', { activo: true }, { order:'puntos', asc:true });
+  if(premios) {
+    const nextPremio = premios.filter(p => p.puntos > currentUser.puntos && p.stock > 0)[0];
+    if(nextPremio) {
+      const pct = Math.min(100,(currentUser.puntos/nextPremio.puntos)*100);
+      setTimeout(() => document.getElementById('ptsFill').style.width = pct+'%', 200);
+      document.getElementById('ptsNext').textContent = (nextPremio.puntos - currentUser.puntos) + ' pts para "' + nextPremio.nombre + '"';
+    } else {
+      setTimeout(() => document.getElementById('ptsFill').style.width = '100%', 200);
+      document.getElementById('ptsNext').textContent = '¡Tenés puntos para canjear!';
+    }
+    const grid = document.getElementById('premiosGrid');
+    grid.innerHTML = '';
+    premios.forEach(p => {
+      const can = currentUser.puntos >= p.puntos && p.stock > 0;
+      const div = document.createElement('div');
+      div.className = 'premio-card' + (can ? '' : ' locked');
+      div.innerHTML = '<span class="p-emoji">' + p.emoji + '</span><div class="p-nombre">' + p.nombre + '</div><div class="p-row"><span class="p-pts">' + p.puntos + ' pts</span><span class="p-stock">' + p.stock + ' disp.</span></div><button class="p-btn" ' + (can?'':'disabled') + ' onclick="canjear(\'' + p.id + '\',\'' + p.nombre.replace(/'/g,"\\'") + '\',' + p.puntos + ')">' + (can?'Canjear':'Canjear') + '</button>' + (p.tipo==='Exclusivo'?'<div class="p-excl">Exclusivo</div>':'');
+      grid.appendChild(div);
+    });
+  }
+
+  // Multiplicador
+  const mults = await dbSelect('multiplicadores', { activo: true }, { limit: 1 });
+  const ms = document.getElementById('multStrip');
+  const nms = document.getElementById('noMultStrip');
+  if(mults && mults.length > 0) {
+    const m = mults[0];
+    ms.style.display='flex'; nms.style.display='none';
+    document.getElementById('multVal').textContent = '×' + m.valor;
+    document.getElementById('multNombre').textContent = m.nombre;
+    document.getElementById('multDesc').textContent = m.detalle || '';
+  } else {
+    ms.style.display='none'; nms.style.display='block';
+  }
+
+  // Cumpleaños
+  const hoy = new Date();
+  const bday = new Date(currentUser.fecha_nacimiento + 'T12:00:00');
+  if(bday.getDate()===hoy.getDate() && bday.getMonth()===hoy.getMonth()) {
+    document.getElementById('bdayBanner').classList.add('visible');
+    document.getElementById('bdayCode').textContent = 'BDAY-' + currentUser.id.slice(0,6).toUpperCase();
+  }
+
+  // Vencimiento
+  const histCheck = await dbSelect('historial', { cliente_id: currentUser.id }, { order:'created_at', asc:false, limit:1 });
+  if(histCheck && histCheck.length > 0) {
+    const diffMonths = (new Date() - new Date(histCheck[0].created_at)) / (1000*60*60*24*30);
+    if(diffMonths >= 3 && currentUser.puntos > 0) {
+      await dbInsert('historial', { cliente_id: currentUser.id, descripcion: 'Puntos vencidos por inactividad (+3 meses)', delta: -currentUser.puntos });
+      await dbUpdate('clientes', { id: currentUser.id }, { puntos: 0 });
+      currentUser.puntos = 0;
+      document.getElementById('cliPts').textContent = '0';
+      toast('Tus puntos vencieron por inactividad de 3 meses', true);
+    } else if(diffMonths >= 2) {
+      document.getElementById('vencNote').style.display = 'flex';
+    }
+  }
+
+  // Historial
+  const hist = await dbSelect('historial', { cliente_id: currentUser.id }, { order:'created_at', asc:false, limit:8 });
+  const histEl = document.getElementById('histList');
+  if(!hist || hist.length===0) {
+    histEl.innerHTML = '<div class="empty-state">Tu historial aparecerá acá después de tu primera visita.</div>';
+  } else {
+    histEl.innerHTML = '';
+    hist.forEach(h => {
+      const div = document.createElement('div');
+      div.className = 'hist-item';
+      div.innerHTML = '<div class="h-icon">' + (h.delta>0?'☕':'🎉') + '</div><div class="h-info"><div class="h-desc">' + h.descripcion + '</div><div class="h-date">' + formatDate(h.created_at) + '</div></div><div class="h-pts ' + (h.delta>0?'pos':'neg') + '">' + (h.delta>0?'+':'') + h.delta + ' pts</div>';
+      histEl.appendChild(div);
+    });
+  }
+}
+
+async function canjear(premioId, nombre, pts) {
+  if(!currentUser) return;
+  if(currentUser.puntos < pts) { toast('No tenés suficientes puntos', true); return; }
+  const nuevoPts = currentUser.puntos - pts;
+  const code = 'CANJE-' + currentUser.id.slice(0,4).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+  await dbUpdate('clientes', { id: currentUser.id }, { puntos: nuevoPts });
+  await dbInsert('historial', { cliente_id: currentUser.id, descripcion: 'Premio canjeado — ' + nombre, delta: -pts });
+  await dbInsert('canjes', { cliente_id: currentUser.id, premio_id: premioId, codigo: code });
+  const pRows = await dbSelect('premios', { id: premioId });
+  if(pRows && pRows[0]) await dbUpdate('premios', { id: premioId }, { stock: pRows[0].stock - 1 });
+  currentUser.puntos = nuevoPts;
+  toast('¡Premio canjeado! Código: ' + code);
+  renderCliente();
+}
+
+// ══════════════════════════════
+// EMPLEADO
+// ══════════════════════════════
+async function empBuscar() {
+  const q = document.getElementById('empSearch').value.trim().toLowerCase();
+  if(!q) { toast('Ingresá nombre, email o celular', true); return; }
+  const todos = await dbSelect('clientes');
+  const found = (todos||[]).find(c =>
+    c.nombre.toLowerCase().includes(q) || c.apellido.toLowerCase().includes(q) ||
+    c.mail.toLowerCase().includes(q) || c.celular.includes(q)
+  );
+  if(!found) { toast('Cliente no encontrado', true); empSelectedClient=null; document.getElementById('empChip').classList.remove('visible'); return; }
+  empSelectedClient = found;
+  document.getElementById('empChip').classList.add('visible');
+  document.getElementById('empChipAv').textContent = found.nombre[0].toUpperCase();
+  document.getElementById('empChipName').textContent = found.nombre + ' ' + found.apellido;
+  document.getElementById('empChipPts').textContent = found.puntos + ' puntos';
+  const mults = await dbSelect('multiplicadores', { activo: true }, { limit:1 });
+  const chip = document.getElementById('empChipMult');
+  if(mults && mults.length>0) { chip.style.display='block'; chip.textContent='×'+mults[0].valor; }
+  else chip.style.display='none';
+  toast(found.nombre + ' ' + found.apellido + ' encontrado ✓');
+}
+
+async function empSumarPuntos() {
+  if(!empSelectedClient) { toast('Primero buscá un cliente', true); return; }
+  const monto = parseInt(document.getElementById('empMonto').value);
+  if(!monto||monto<=0) { toast('Ingresá el monto', true); return; }
+  const mults = await dbSelect('multiplicadores', { activo: true }, { limit:1 });
+  const mult = (mults && mults.length>0) ? mults[0].valor : 1;
+  const pts = Math.floor((monto/1000)*mult);
+  if(pts < 1) { toast('El monto no alcanza (mínimo $1.000)', true); return; }
+  const nuevoTotal = empSelectedClient.puntos + pts;
+  const desc = 'Compra $' + monto.toLocaleString('es-AR') + (mult>1?' · ×'+mult:'') + ' — registrado por ' + empleadoActual.nombre;
+  await dbUpdate('clientes', { id: empSelectedClient.id }, { puntos: nuevoTotal });
+  await dbInsert('historial', { cliente_id: empSelectedClient.id, descripcion: desc, delta: pts });
+  empSelectedClient.puntos = nuevoTotal;
+  document.getElementById('empChipPts').textContent = nuevoTotal + ' puntos';
+  document.getElementById('empMonto').value = '';
+  if(currentUser && currentUser.id === empSelectedClient.id) currentUser.puntos = nuevoTotal;
+  empTurnoActividad.unshift({ cliente: empSelectedClient.nombre + ' ' + empSelectedClient.apellido, monto, pts, hora: new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) });
+  toast('+' + pts + ' pts sumados a ' + empSelectedClient.nombre + ' ✓');
+  renderEmpActividad();
+}
+
+async function empRestarPuntos() {
+  if(!empSelectedClient) { toast('Primero buscá un cliente', true); return; }
+  const ptsStr = prompt('¿Cuántos puntos querés restar a ' + empSelectedClient.nombre + '?\nTiene ' + empSelectedClient.puntos + ' pts.');
+  if(!ptsStr) return;
+  const pts = parseInt(ptsStr);
+  if(isNaN(pts)||pts<=0) { toast('Cantidad inválida', true); return; }
+  if(pts > empSelectedClient.puntos) { toast('No puede quedar con puntos negativos', true); return; }
+  const motivo = prompt('Motivo de la corrección (obligatorio):');
+  if(!motivo||!motivo.trim()) { toast('El motivo es obligatorio', true); return; }
+  const nuevoTotal = empSelectedClient.puntos - pts;
+  const desc = 'Corrección: ' + motivo.trim() + ' — por ' + empleadoActual.nombre;
+  await dbUpdate('clientes', { id: empSelectedClient.id }, { puntos: nuevoTotal });
+  await dbInsert('historial', { cliente_id: empSelectedClient.id, descripcion: desc, delta: -pts });
+  empSelectedClient.puntos = nuevoTotal;
+  document.getElementById('empChipPts').textContent = nuevoTotal + ' puntos';
+  if(currentUser && currentUser.id === empSelectedClient.id) currentUser.puntos = nuevoTotal;
+  empTurnoActividad.unshift({ cliente: empSelectedClient.nombre + ' ' + empSelectedClient.apellido, monto:0, pts:-pts, motivo:motivo.trim(), hora: new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}) });
+  toast('−' + pts + ' pts corregidos ✓');
+  renderEmpActividad();
+}
+
+function renderEmpActividad() {
+  const el = document.getElementById('empActividad');
+  if(empTurnoActividad.length===0) { el.innerHTML = '<div class="empty-state">Aún no registraste compras en este turno.</div>'; return; }
+  el.innerHTML = '';
+  empTurnoActividad.forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'hist-item';
+    const isPos = a.pts > 0;
+    div.innerHTML = '<div class="h-icon">' + (isPos?'☕':'↩️') + '</div><div class="h-info"><div class="h-desc">' + a.cliente + '</div><div class="h-date">' + (a.motivo?a.motivo+' · ':'') + (a.monto?'$'+a.monto.toLocaleString('es-AR')+' · ':'') + a.hora + '</div></div><div class="h-pts ' + (isPos?'pos':'neg') + '">' + (isPos?'+':'') + a.pts + ' pts</div>';
+    el.appendChild(div);
+  });
+}
+
+// ══════════════════════════════
+// ADMIN
+// ══════════════════════════════
+async function renderAdmin() {
+  const clientes = await dbSelect('clientes', {}, { order:'created_at', asc:false });
+  const canjes = await dbSelect('canjes');
+  document.getElementById('sClientes').textContent = clientes?.length ?? 0;
+  document.getElementById('sCanjes').textContent = canjes?.length ?? 0;
+
+  // Cumpleaños hoy
+  const hoy = new Date();
+  const mm = String(hoy.getMonth()+1).padStart(2,'0');
+  const dd = String(hoy.getDate()).padStart(2,'0');
+  const bdaysHoy = (clientes||[]).filter(c => c.fecha_nacimiento && c.fecha_nacimiento.slice(5) === mm+'-'+dd);
+  document.getElementById('sBdays').textContent = bdaysHoy.length;
+
+  const bdayEl = document.getElementById('bdayHoy');
+  if(bdaysHoy.length===0) {
+    bdayEl.innerHTML = '<div class="empty-state">No hay cumpleaños hoy.</div>';
+  } else {
+    bdayEl.innerHTML = '';
+    bdaysHoy.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'bday-list-item';
+      div.innerHTML = '<div style="font-size:28px">🎂</div><div class="bday-item-info"><div class="bday-item-name">' + c.nombre + ' ' + c.apellido + '</div><div class="bday-item-mail">' + c.mail + '</div></div><button class="btn-send-mail ' + (c.bday_sent?'sent':'') + '" onclick="openMailModal(\'' + c.id + '\')" ' + (c.bday_sent?'disabled':'') + '>' + (c.bday_sent?'✓ Enviado':'Enviar mail') + '</button>';
+      bdayEl.appendChild(div);
+    });
+  }
+
+  // Actividad empleados hoy
+  const todayStr = hoy.toISOString().slice(0,10);
+  const histHoy = await dbSelect('historial', {}, { gte:['created_at', todayStr], order:'created_at', asc:false, limit:30 });
+  const empActEl = document.getElementById('empActividadAdmin');
+  const empHist = (histHoy||[]).filter(h => h.descripcion && h.descripcion.includes('registrado por'));
+  if(empHist.length===0) {
+    empActEl.innerHTML = '<div class="empty-state">Sin actividad de empleados hoy.</div>';
+  } else {
+    empActEl.innerHTML = '';
+    empHist.forEach(h => {
+      const div = document.createElement('div');
+      div.className = 'hist-item';
+      const match = h.descripcion.match(/(?:registrado|por) ([A-Za-z]+)$/);
+      const empName = match ? match[1] : '—';
+      div.innerHTML = '<div class="h-icon">👷</div><div class="h-info"><div class="h-desc">' + h.descripcion.split(' — registrado por')[0].split(' — por')[0] + '</div><div class="h-date">' + empName + ' · ' + formatDate(h.created_at) + '</div></div><div class="h-pts ' + (h.delta>0?'pos':'neg') + '">' + (h.delta>0?'+':'') + h.delta + ' pts</div>';
+      empActEl.appendChild(div);
+    });
+  }
+
+  // Multiplicadores
+  const mults = await dbSelect('multiplicadores', {}, { order:'created_at', asc:true });
+  const multEl = document.getElementById('multList');
+  multEl.innerHTML = '';
+  (mults||[]).forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'mult-card-adm' + (m.activo?' on':'');
+    div.innerHTML = '<div class="mult-icon-adm">⏰</div><div class="mult-info-adm"><div class="mult-name-adm">' + m.nombre + '</div><div class="mult-det-adm">' + (m.detalle||'') + '</div></div><div class="mult-val">×' + m.valor + '</div><label class="toggle"><input type="checkbox" ' + (m.activo?'checked':'') + ' onchange="toggleMult(\'' + m.id + '\',this)"><span class="tslider"></span></label>';
+    multEl.appendChild(div);
+  });
+
+  // Premios
+  const premios = await dbSelect('premios', { activo: true }, { order:'puntos', asc:true });
+  const pEl = document.getElementById('premiosAdm');
+  pEl.innerHTML = '';
+  (premios||[]).forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'premio-adm-item';
+    div.innerHTML = '<div class="pa-emoji">' + p.emoji + '</div><div class="pa-info"><div class="pa-name">' + p.nombre + '</div><div class="pa-meta"><span class="pa-pts">' + p.puntos + ' pts</span><span>' + p.stock + ' disponibles</span></div></div><button class="btn-del" onclick="eliminarPremio(\'' + p.id + '\')">Eliminar</button>';
+    pEl.appendChild(div);
+  });
+
+  // Clientes
+  const cEl = document.getElementById('clientesList');
+  if(!clientes||clientes.length===0) {
+    cEl.innerHTML = '<div class="empty-state">Aún no hay clientes registrados.</div>';
+  } else {
+    cEl.innerHTML = '';
+    clientes.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'cli-row';
+      div.innerHTML = '<div class="cli-row-av">' + c.nombre[0].toUpperCase() + '</div><div class="cli-row-info"><div class="cli-row-name">' + c.nombre + ' ' + c.apellido + '</div><div class="cli-row-mail">' + c.mail + ' · ' + c.celular + '</div></div><div class="cli-row-pts">' + c.puntos + ' pts</div>';
+      cEl.appendChild(div);
+    });
+  }
+}
+
+async function admBuscar() {
+  const q = document.getElementById('admSearch').value.trim().toLowerCase();
+  if(!q) { toast('Ingresá nombre, email o celular', true); return; }
+  const todos = await dbSelect('clientes');
+  const found = (todos||[]).find(c =>
+    c.nombre.toLowerCase().includes(q) || c.apellido.toLowerCase().includes(q) ||
+    c.mail.toLowerCase().includes(q) || c.celular.includes(q)
+  );
+  if(!found) { toast('Cliente no encontrado', true); admSelectedClient=null; document.getElementById('admChip').classList.remove('visible'); return; }
+  admSelectedClient = found;
+  document.getElementById('admChip').classList.add('visible');
+  document.getElementById('admChipAv').textContent = found.nombre[0].toUpperCase();
+  document.getElementById('admChipName').textContent = found.nombre + ' ' + found.apellido;
+  document.getElementById('admChipPts').textContent = found.puntos + ' puntos';
+  const mults = await dbSelect('multiplicadores', { activo: true }, { limit:1 });
+  const chip = document.getElementById('admChipMult');
+  if(mults && mults.length>0) { chip.style.display='block'; chip.textContent='×'+mults[0].valor; }
+  else chip.style.display='none';
+  toast(found.nombre + ' encontrado ✓');
+}
+
+async function admSumarPuntos() {
+  if(!admSelectedClient) { toast('Primero buscá un cliente', true); return; }
+  const monto = parseInt(document.getElementById('admMonto').value);
+  if(!monto||monto<=0) { toast('Ingresá el monto', true); return; }
+  const mults = await dbSelect('multiplicadores', { activo: true }, { limit:1 });
+  const mult = (mults && mults.length>0) ? mults[0].valor : 1;
+  const pts = Math.floor((monto/1000)*mult);
+  if(pts < 1) { toast('El monto no alcanza (mínimo $1.000)', true); return; }
+  const nuevoTotal = admSelectedClient.puntos + pts;
+  const desc = 'Compra en Búlgaro' + (mult>1?' · ×'+mult+' multiplicador':'');
+  await dbUpdate('clientes', { id: admSelectedClient.id }, { puntos: nuevoTotal });
+  await dbInsert('historial', { cliente_id: admSelectedClient.id, descripcion: desc, delta: pts });
+  admSelectedClient.puntos = nuevoTotal;
+  document.getElementById('admChipPts').textContent = nuevoTotal + ' puntos';
+  document.getElementById('admMonto').value = '';
+  if(currentUser && currentUser.id === admSelectedClient.id) currentUser.puntos = nuevoTotal;
+  toast('+' + pts + ' puntos sumados a ' + admSelectedClient.nombre + ' ✓');
+  renderAdmin();
+}
+
+async function toggleMult(id, cb) {
+  await dbUpdate('multiplicadores', { id }, { activo: cb.checked });
+  const card = cb.closest('.mult-card-adm');
+  if(cb.checked) card.classList.add('on'); else card.classList.remove('on');
+  toast(cb.checked ? 'Multiplicador activado ✓' : 'Multiplicador desactivado');
+}
+
+async function admAgregarPremio() {
+  const nombre = document.getElementById('newNombre').value.trim();
+  const puntos = parseInt(document.getElementById('newPts').value);
+  const stock = parseInt(document.getElementById('newStock').value)||1;
+  const tipo = document.getElementById('newTipo').value;
+  const emoji = document.getElementById('newEmoji').value||'🎁';
+  if(!nombre||!puntos) { toast('Completá nombre y puntos', true); return; }
+  await dbInsert('premios', { nombre, puntos, stock, tipo, emoji, activo: true });
+  ['newNombre','newPts','newStock','newEmoji'].forEach(id => document.getElementById(id).value='');
+  toast('"' + nombre + '" publicado ✓');
+  renderAdmin();
+}
+
+async function eliminarPremio(id) {
+  await dbUpdate('premios', { id }, { activo: false });
+  toast('Premio eliminado');
+  renderAdmin();
+}
+
+// ══════════════════════════════
+// MAIL CUMPLEAÑOS
+// ══════════════════════════════
+async function openMailModal(clienteId) {
+  const rows = await dbSelect('clientes', { id: clienteId });
+  if(!rows || !rows[0]) return;
+  const c = rows[0];
+  mailTargetClient = c;
+  const code = 'BDAY-' + c.id.slice(0,6).toUpperCase();
+  document.getElementById('modalTo').textContent = 'PARA: ' + c.mail;
+  document.getElementById('mailH').textContent = '¡Feliz cumple, ' + c.nombre + '!';
+  document.getElementById('mailCode').textContent = code;
+  document.getElementById('btnEnviarMail').textContent = 'Enviar mail ✓';
+  document.getElementById('btnEnviarMail').disabled = false;
+  document.getElementById('mailModal').classList.add('visible');
+}
+
+function closeModal() { document.getElementById('mailModal').classList.remove('visible'); mailTargetClient=null; }
+
+async function enviarMail() {
+  if(!mailTargetClient) return;
+  await dbUpdate('clientes', { id: mailTargetClient.id }, { bday_sent: true });
+  toast('Mail simulado enviado a ' + mailTargetClient.mail + ' 🎂');
+  document.getElementById('btnEnviarMail').textContent = '✓ Enviado';
+  document.getElementById('btnEnviarMail').disabled = true;
+  setTimeout(() => { closeModal(); renderAdmin(); }, 800);
+}
+
+// ══════════════════════════════
+// UTILS
+// ══════════════════════════════
+function formatDate(iso) {
+  if(!iso) return '';
+  return new Date(iso).toLocaleDateString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+
+let toastT;
+function toast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (err?' error':'');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
