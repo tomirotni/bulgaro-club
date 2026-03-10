@@ -243,6 +243,33 @@ body { font-family:var(--font); background:var(--negro); color:var(--blanco); mi
 .btn-secondary-emp { width:100%; padding:11px; border-radius:11px; background:transparent; border:1px solid rgba(224,90,90,0.3); color:var(--rojo); font-family:var(--font); font-size:12px; font-weight:700; cursor:pointer; letter-spacing:0.05em; }
 .venc-note { background:rgba(182,129,80,0.07); border:1px solid rgba(182,129,80,0.18); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px; margin-bottom:14px; font-size:12px; color:rgba(255,255,255,0.5); line-height:1.5; }
 .venc-note strong { color:var(--marron); }
+/* Milestone banner */
+.milestone-banner { margin:0 20px 16px; background:linear-gradient(135deg,#1a3a2a,#0d2418); border:1px solid rgba(0,102,70,0.4); border-radius:16px; padding:18px 20px; display:none; align-items:center; gap:14px; }
+.milestone-banner.visible { display:flex; }
+.milestone-emoji { font-size:34px; }
+.milestone-title { font-size:16px; font-weight:900; color:#fff; }
+.milestone-sub { font-size:12px; color:rgba(255,255,255,0.6); margin-top:3px; }
+/* Stats extra */
+.stats-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:0 20px 18px; }
+.stat-box-wide { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:14px 16px; }
+.stat-wide-num { font-size:22px; font-weight:900; color:var(--marron); }
+.stat-wide-lbl { font-size:9px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-top:3px; }
+/* Ajuste puntos admin */
+.ajuste-box { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px; margin-top:10px; display:none; }
+.ajuste-box.visible { display:block; }
+/* Edit perfil */
+.edit-perfil-box { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:20px; display:none; margin:0 20px 20px; }
+.edit-perfil-box.visible { display:block; }
+/* Config milestone */
+.milestone-config { background:rgba(0,102,70,0.07); border:1px solid rgba(0,102,70,0.2); border-radius:14px; padding:14px 16px; margin-bottom:12px; display:flex; align-items:center; gap:12px; }
+.milestone-config-info { flex:1; font-size:13px; font-weight:700; }
+.milestone-config-sub { font-size:11px; color:var(--gris); margin-top:2px; }
+/* Mult edit inline */
+.mult-edit-box { background:rgba(255,255,255,0.04); border:1px solid rgba(182,129,80,0.2); border-radius:12px; padding:14px; margin-top:8px; display:none; }
+.mult-edit-box.visible { display:block; }
+.mult-edit-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
+.mult-actions { display:flex; gap:8px; margin-top:6px; }
+.btn-edit { padding:7px 12px; border-radius:8px; background:rgba(182,129,80,0.1); border:1px solid rgba(182,129,80,0.25); color:var(--marron); font-size:11px; font-weight:700; cursor:pointer; font-family:var(--font); }
 input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity(0.4); }
 </style>
 </head>
@@ -324,6 +351,10 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
       </div>
     </div>
   </div>
+  <div class="milestone-banner" id="milestoneBanner">
+    <div class="milestone-emoji">🏆</div>
+    <div><div class="milestone-title" id="milestoneTitle">¡Hito alcanzado!</div><div class="milestone-sub" id="milestoneSub">Llegaste a un nuevo nivel en Búlgaro Club</div></div>
+  </div>
   <div id="multStrip" class="mult-strip" style="display:none">
     <div class="mult-badge" id="multVal">×2</div>
     <div><div class="mult-title" id="multNombre">—</div><div class="mult-sub" id="multDesc">—</div></div>
@@ -336,7 +367,16 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
     <div class="bday-emoji">🎂</div>
     <div><div class="bday-title">¡Feliz cumpleaños!</div><div class="bday-sub">Tu café gratis te espera hoy</div><div class="bday-code" id="bdayCode">—</div></div>
   </div>
-  <div class="sec"><div class="sec-title">Premios disponibles</div><div class="premios-grid" id="premiosGrid"></div></div>
+  <div class="edit-perfil-box" id="editPerfilBox">
+    <div style="font-size:13px;font-weight:700;margin-bottom:14px">Editar mi perfil</div>
+    <div class="field-group"><label class="field-label">Email</label><input class="field-input" id="editMail" type="email"></div>
+    <div class="field-group"><label class="field-label">Celular</label><input class="field-input" id="editCel" type="tel"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn-main" style="flex:2;padding:12px" onclick="guardarPerfil()">Guardar</button>
+      <button class="btn-main" style="flex:1;padding:12px;background:rgba(255,255,255,0.06)" onclick="toggleEditPerfil()">Cancelar</button>
+    </div>
+  </div>
+  <div class="sec"><div class="sec-title" style="display:flex;justify-content:space-between;align-items:center">Premios disponibles <span style="font-size:11px;color:var(--marron);cursor:pointer;font-weight:700" onclick="toggleEditPerfil()">Editar perfil ✏️</span></div><div class="premios-grid" id="premiosGrid"></div></div>
   <div class="sec"><div class="sec-title">Últimas visitas</div><div id="histList"></div></div>
   <div class="pad"></div>
 </div>
@@ -384,6 +424,10 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
     <div class="stat-box"><div class="stat-num" id="sCanjes">—</div><div class="stat-lbl">Canjes</div></div>
     <div class="stat-box"><div class="stat-num" id="sBdays">—</div><div class="stat-lbl">Cumple. hoy</div></div>
   </div>
+  <div class="stats-row-2">
+    <div class="stat-box-wide"><div class="stat-wide-num" id="sPtsEmitidos">—</div><div class="stat-wide-lbl">Puntos emitidos</div></div>
+    <div class="stat-box-wide"><div class="stat-wide-num" id="sPtsCanjeados">—</div><div class="stat-wide-lbl">Puntos canjeados</div></div>
+  </div>
   <!-- registrar compra -->
   <div class="adm-sec">
     <div class="adm-sec-tit">Registrar compra</div>
@@ -407,7 +451,23 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
   <!-- cumpleaños hoy -->
   <div class="adm-sec"><div class="adm-sec-tit">Cumpleaños hoy 🎂</div><div id="bdayHoy"></div></div>
   <!-- multiplicadores -->
-  <div class="adm-sec"><div class="adm-sec-tit">Multiplicadores</div><div id="multList"></div></div>
+  <div class="adm-sec">
+    <div class="adm-sec-tit">Multiplicadores</div>
+    <div id="multList"></div>
+    <div class="adm-sec-tit" style="margin-top:20px">Agregar multiplicador</div>
+    <div class="add-box">
+      <div class="add-row">
+        <div class="field-group add-full"><label class="field-label">Nombre</label><input class="field-input" id="mNombre" type="text" placeholder="Ej: Domingo especial"></div>
+      </div>
+      <div class="add-row">
+        <div class="field-group add-full"><label class="field-label">Detalle</label><input class="field-input" id="mDetalle" type="text" placeholder="Ej: Todos los domingos · 10:00 a 13:00 hs"></div>
+      </div>
+      <div class="add-row">
+        <div class="field-group"><label class="field-label">Valor ×</label><input class="field-input" id="mValor" type="number" step="0.5" placeholder="2"></div>
+      </div>
+      <button class="btn-pub" onclick="admAgregarMultiplicador()">Agregar multiplicador</button>
+    </div>
+  </div>
   <!-- premios -->
   <div class="adm-sec">
     <div class="adm-sec-tit">Premios activos</div>
@@ -430,6 +490,41 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
   </div>
   <!-- clientes -->
   <div class="adm-sec"><div class="adm-sec-tit">Actividad de empleados 👷</div><div id="empActividadAdmin"><div class="empty-state">Sin actividad registrada hoy.</div></div></div>
+  <!-- notificacion hito -->
+  <div class="adm-sec">
+    <div class="adm-sec-tit">Notificación de hito ⭐</div>
+    <div class="milestone-config">
+      <div style="font-size:24px">🏆</div>
+      <div class="milestone-config-info">
+        Avisar al cliente cuando llegue a
+        <input type="number" id="milestoneThreshold" style="width:70px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:4px 8px;color:#fff;font-family:var(--font);font-size:14px;font-weight:700;margin:0 6px" placeholder="200">
+        puntos
+        <div class="milestone-config-sub">Por cartel en la app + mail automático</div>
+      </div>
+      <button class="btn-buscar" onclick="guardarMilestone()">Guardar</button>
+    </div>
+  </div>
+  <!-- ajuste manual de puntos -->
+  <div class="adm-sec">
+    <div class="adm-sec-tit">Ajuste manual de puntos</div>
+    <div class="compra-card">
+      <div class="search-row">
+        <input class="field-input" id="ajusteSearch" type="text" placeholder="Buscar cliente...">
+        <button class="btn-buscar" onclick="ajusteBuscar()">Buscar</button>
+      </div>
+      <div class="cliente-chip" id="ajusteChip">
+        <div class="chip-av" id="ajusteChipAv">?</div>
+        <div><div class="chip-name" id="ajusteChipName">—</div><div class="chip-pts" id="ajusteChipPts">—</div></div>
+      </div>
+      <div class="ajuste-box" id="ajusteBox">
+        <div style="font-size:12px;color:var(--gris);margin-bottom:10px">Ingresá el nuevo total de puntos para este cliente</div>
+        <div class="monto-row">
+          <input class="field-input" id="ajusteValor" type="number" placeholder="Nuevo total de puntos">
+          <button class="btn-sumar" onclick="admAjustarPuntos()">Ajustar</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="adm-sec"><div class="adm-sec-tit">Todos los clientes</div><div id="clientesList"></div></div>
   <div class="pad"></div>
 </div>
@@ -689,6 +784,27 @@ async function renderCliente() {
   }
 }
 
+function toggleEditPerfil() {
+  const box = document.getElementById('editPerfilBox');
+  box.classList.toggle('visible');
+  if(box.classList.contains('visible') && currentUser) {
+    document.getElementById('editMail').value = currentUser.mail;
+    document.getElementById('editCel').value = currentUser.celular;
+  }
+}
+
+async function guardarPerfil() {
+  const mail = document.getElementById('editMail').value.trim().toLowerCase();
+  const celular = document.getElementById('editCel').value.trim();
+  if(!mail || !celular) { toast('Completá todos los campos', true); return; }
+  await dbUpdate('clientes', { id: currentUser.id }, { mail, celular });
+  currentUser.mail = mail;
+  currentUser.celular = celular;
+  sessionStorage.setItem('bulgaro_user_id', currentUser.id);
+  document.getElementById('editPerfilBox').classList.remove('visible');
+  toast('Perfil actualizado ✓');
+}
+
 async function canjear(premioId, nombre, pts) {
   if(!currentUser) return;
   if(currentUser.puntos < pts) { toast('No tenés suficientes puntos', true); return; }
@@ -789,8 +905,19 @@ function renderEmpActividad() {
 async function renderAdmin() {
   const clientes = await dbSelect('clientes', {}, { order:'created_at', asc:false });
   const canjes = await dbSelect('canjes');
+  const histAll = await dbSelect('historial');
   document.getElementById('sClientes').textContent = clientes?.length ?? 0;
   document.getElementById('sCanjes').textContent = canjes?.length ?? 0;
+  // Points stats
+  const emitidos = (histAll||[]).filter(h => h.delta > 0).reduce((s,h) => s + h.delta, 0);
+  const canjeados = (histAll||[]).filter(h => h.delta < 0).reduce((s,h) => s + Math.abs(h.delta), 0);
+  document.getElementById('sPtsEmitidos').textContent = emitidos.toLocaleString('es-AR');
+  document.getElementById('sPtsCanjeados').textContent = canjeados.toLocaleString('es-AR');
+  // Load milestone config
+  const milestoneRows = await dbSelect('configuracion', { clave: 'milestone_pts' });
+  if(milestoneRows && milestoneRows[0]) {
+    document.getElementById('milestoneThreshold').value = milestoneRows[0].valor;
+  }
 
   // Cumpleaños hoy
   const hoy = new Date();
@@ -914,6 +1041,41 @@ async function toggleMult(id, cb) {
   const card = cb.closest('.mult-card-adm');
   if(cb.checked) card.classList.add('on'); else card.classList.remove('on');
   toast(cb.checked ? 'Multiplicador activado ✓' : 'Multiplicador desactivado');
+}
+
+function toggleMultEdit(id) {
+  const box = document.getElementById('medit-' + id);
+  box.classList.toggle('visible');
+}
+
+async function guardarMultiplicador(id) {
+  const nombre = document.getElementById('mn-' + id).value.trim();
+  const valor = parseFloat(document.getElementById('mv-' + id).value);
+  const detalle = document.getElementById('md-' + id).value.trim();
+  if(!nombre || !valor) { toast('Completá nombre y valor', true); return; }
+  await dbUpdate('multiplicadores', { id }, { nombre, valor, detalle });
+  toast('Multiplicador actualizado ✓');
+  renderAdmin();
+}
+
+async function eliminarMultiplicador(id) {
+  if(!confirm('¿Eliminar este multiplicador?')) return;
+  await dbUpdate('multiplicadores', { id }, { activo: false });
+  // Actually delete it
+  const r = await fetch(SUPA_URL + '/rest/v1/multiplicadores?id=eq.' + id, { method:'DELETE', headers: H });
+  toast('Multiplicador eliminado');
+  renderAdmin();
+}
+
+async function admAgregarMultiplicador() {
+  const nombre = document.getElementById('mNombre').value.trim();
+  const detalle = document.getElementById('mDetalle').value.trim();
+  const valor = parseFloat(document.getElementById('mValor').value);
+  if(!nombre || !valor) { toast('Completá nombre y valor', true); return; }
+  await dbInsert('multiplicadores', { nombre, detalle, valor, activo: false });
+  ['mNombre','mDetalle','mValor'].forEach(id => document.getElementById(id).value = '');
+  toast('"' + nombre + '" agregado ✓');
+  renderAdmin();
 }
 
 async function admAgregarPremio() {
@@ -1089,6 +1251,94 @@ async function enviarMail() {
     btn.textContent = 'Reintentar';
     btn.disabled = false;
   }
+}
+
+// ══════════════════════════════
+// MILESTONE MAIL
+// ══════════════════════════════
+async function enviarMailMilestone(cliente, pts) {
+  const html = `
+    <div style="font-family:'Helvetica Neue',sans-serif;max-width:520px;margin:0 auto;background:#f7f2eb;border-radius:16px;overflow:hidden">
+      <div style="background:#006646;padding:32px 28px;text-align:center">
+        <div style="font-size:11px;font-weight:800;letter-spacing:0.25em;color:rgba(255,255,255,0.6);text-transform:uppercase;margin-bottom:8px">BÚLGARO CAFÉ</div>
+        <div style="font-size:28px;font-weight:900;color:#ffffff;margin-bottom:6px">¡Hito alcanzado, ${cliente.nombre}! 🏆</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.7)">Llegaste a ${pts} puntos</div>
+      </div>
+      <div style="padding:32px 28px">
+        <p style="font-size:15px;color:#333;line-height:1.7;margin-bottom:20px">
+          Tu fidelidad con Búlgaro se nota. Llegaste a <strong>${pts} puntos</strong> y ya podés acceder a premios y experiencias exclusivas.
+        </p>
+        <div style="text-align:center;margin:24px 0">
+          <a href="https://bulgaroclub.netlify.app" style="display:inline-block;background:#b68150;color:#fff;font-weight:800;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;padding:14px 28px;border-radius:40px;text-decoration:none">Ver mis premios →</a>
+        </div>
+      </div>
+      <div style="background:#e8e0d0;padding:18px 28px;text-align:center">
+        <p style="font-size:11px;color:#aaa;margin:0">Búlgaro Café · Bahía Blanca, Argentina</p>
+      </div>
+    </div>`;
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer re_hnnqUhwU_HEDMVrxpvEE989hnMjFaQMki', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Búlgaro Club <onboarding@resend.dev>',
+        to: [cliente.mail],
+        subject: '🏆 ¡Llegaste a ' + pts + ' puntos en Búlgaro Club!',
+        html
+      })
+    });
+  } catch(e) { console.log('Milestone mail error:', e); }
+}
+
+async function guardarMilestone() {
+  const val = parseInt(document.getElementById('milestoneThreshold').value);
+  if(!val || val < 1) { toast('Ingresá una cantidad válida', true); return; }
+  // Upsert configuracion
+  const existing = await dbSelect('configuracion', { clave: 'milestone_pts' });
+  if(existing && existing.length > 0) {
+    await dbUpdate('configuracion', { clave: 'milestone_pts' }, { valor: String(val) });
+  } else {
+    await dbInsert('configuracion', { clave: 'milestone_pts', valor: String(val) });
+  }
+  toast('Hito configurado en ' + val + ' puntos ✓');
+}
+
+let ajusteSelectedClient = null;
+
+async function ajusteBuscar() {
+  const q = document.getElementById('ajusteSearch').value.trim().toLowerCase();
+  if(!q) { toast('Ingresá nombre, email o celular', true); return; }
+  const todos = await dbSelect('clientes');
+  const found = (todos||[]).find(c =>
+    c.nombre.toLowerCase().includes(q) || c.apellido.toLowerCase().includes(q) ||
+    c.mail.toLowerCase().includes(q) || c.celular.includes(q)
+  );
+  if(!found) { toast('Cliente no encontrado', true); ajusteSelectedClient=null; document.getElementById('ajusteChip').classList.remove('visible'); document.getElementById('ajusteBox').classList.remove('visible'); return; }
+  ajusteSelectedClient = found;
+  document.getElementById('ajusteChip').classList.add('visible');
+  document.getElementById('ajusteChipAv').textContent = found.nombre[0].toUpperCase();
+  document.getElementById('ajusteChipName').textContent = found.nombre + ' ' + found.apellido;
+  document.getElementById('ajusteChipPts').textContent = found.puntos + ' puntos actuales';
+  document.getElementById('ajusteBox').classList.add('visible');
+  document.getElementById('ajusteValor').value = found.puntos;
+  toast(found.nombre + ' encontrado ✓');
+}
+
+async function admAjustarPuntos() {
+  if(!ajusteSelectedClient) { toast('Primero buscá un cliente', true); return; }
+  const nuevo = parseInt(document.getElementById('ajusteValor').value);
+  if(isNaN(nuevo) || nuevo < 0) { toast('Ingresá un valor válido', true); return; }
+  const diff = nuevo - ajusteSelectedClient.puntos;
+  const desc = 'Ajuste manual por admin (' + (diff >= 0 ? '+' : '') + diff + ' pts)';
+  await dbUpdate('clientes', { id: ajusteSelectedClient.id }, { puntos: nuevo });
+  await dbInsert('historial', { cliente_id: ajusteSelectedClient.id, descripcion: desc, delta: diff });
+  toast('Puntos de ' + ajusteSelectedClient.nombre + ' ajustados a ' + nuevo + ' ✓');
+  document.getElementById('ajusteChip').classList.remove('visible');
+  document.getElementById('ajusteBox').classList.remove('visible');
+  document.getElementById('ajusteSearch').value = '';
+  ajusteSelectedClient = null;
+  if(currentUser && currentUser.id === ajusteSelectedClient?.id) currentUser.puntos = nuevo;
+  renderAdmin();
 }
 
 // ══════════════════════════════
