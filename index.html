@@ -271,6 +271,38 @@ body { font-family:var(--font); background:var(--negro); color:var(--blanco); mi
 .mult-actions { display:flex; gap:8px; margin-top:6px; }
 .btn-edit { padding:7px 12px; border-radius:8px; background:rgba(182,129,80,0.1); border:1px solid rgba(182,129,80,0.25); color:var(--marron); font-size:11px; font-weight:700; cursor:pointer; font-family:var(--font); }
 input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity(0.4); }
+/* Inteligencia */
+.intel-sec { padding:0 20px 24px; }
+.ranking-item { display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.rank-num { width:28px; height:28px; border-radius:50%; background:rgba(182,129,80,0.12); border:1px solid rgba(182,129,80,0.22); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:var(--marron); flex-shrink:0; }
+.rank-num.gold { background:var(--marron); color:#fff; }
+.rank-num.silver { background:#888; color:#fff; }
+.rank-num.bronze { background:#a0603a; color:#fff; }
+.rank-info { flex:1; }
+.rank-name { font-size:13px; font-weight:700; }
+.rank-meta { font-size:11px; color:var(--gris); margin-top:2px; }
+.rank-pts { font-size:15px; font-weight:900; color:var(--marron); }
+.riesgo-item { display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:13px; margin-bottom:8px; }
+.riesgo-item.critico { background:rgba(224,90,90,0.08); border:1px solid rgba(224,90,90,0.2); }
+.riesgo-item.advertencia { background:rgba(182,129,80,0.08); border:1px solid rgba(182,129,80,0.18); }
+.riesgo-av { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; flex-shrink:0; }
+.riesgo-av.critico { background:rgba(224,90,90,0.15); color:var(--rojo); }
+.riesgo-av.advertencia { background:rgba(182,129,80,0.15); color:var(--marron); }
+.riesgo-info { flex:1; }
+.riesgo-name { font-size:13px; font-weight:700; }
+.riesgo-meta { font-size:11px; color:var(--gris); margin-top:2px; }
+.riesgo-pts { font-size:12px; font-weight:800; }
+.riesgo-pts.critico { color:var(--rojo); }
+.riesgo-pts.advertencia { color:var(--marron); }
+/* Chart */
+.chart-wrap { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:20px; }
+.chart-bars { display:flex; align-items:flex-end; gap:6px; height:100px; margin-bottom:8px; }
+.chart-bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.chart-bar { width:100%; border-radius:4px 4px 0 0; background:var(--verde); min-height:4px; transition:height 0.6s ease; position:relative; }
+.chart-bar:hover::after { content:attr(data-val); position:absolute; top:-22px; left:50%; transform:translateX(-50%); font-size:10px; font-weight:700; color:#fff; background:rgba(0,0,0,0.7); padding:2px 6px; border-radius:4px; white-space:nowrap; }
+.chart-lbl { font-size:9px; color:var(--gris); font-weight:600; text-align:center; }
+.chart-title { font-size:11px; font-weight:700; color:rgba(255,255,255,0.4); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:14px; }
+.btn-contactar { padding:7px 12px; border-radius:8px; background:rgba(0,102,70,0.12); border:1px solid rgba(0,102,70,0.25); color:var(--verde-light); font-size:11px; font-weight:700; cursor:pointer; font-family:var(--font); }
 </style>
 </head>
 <body>
@@ -521,6 +553,43 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
         <div class="monto-row">
           <input class="field-input" id="ajusteValor" type="number" placeholder="Nuevo total de puntos">
           <button class="btn-sumar" onclick="admAjustarPuntos()">Ajustar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- inteligencia -->
+  <div class="adm-sec">
+    <div class="adm-sec-tit">Inteligencia 🧠</div>
+    <!-- crecimiento -->
+    <div class="chart-wrap" style="margin-bottom:14px">
+      <div class="chart-title">Registros por semana</div>
+      <div class="chart-bars" id="chartBars"></div>
+    </div>
+    <!-- ranking -->
+    <div class="adm-sec-tit" style="margin-top:4px">Ranking de clientes 🏆</div>
+    <div id="rankingList"></div>
+    <!-- riesgo vencimiento -->
+    <div class="adm-sec-tit" style="margin-top:20px">En riesgo de vencimiento ⚠️</div>
+    <div id="riesgoList"></div>
+  </div>
+  <!-- exportar -->
+  <div class="adm-sec">
+    <div class="adm-sec-tit">Exportar datos</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="add-box" style="padding:14px">
+        <div style="font-size:12px;font-weight:700;margin-bottom:4px">👥 Clientes</div>
+        <div style="font-size:11px;color:var(--gris);margin-bottom:12px">Nombre, mail, cel, puntos</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-pub" style="flex:1;padding:10px;font-size:11px" onclick="exportCSV('clientes')">CSV</button>
+          <button class="btn-pub" style="flex:1;padding:10px;font-size:11px;background:var(--marron)" onclick="exportPDF('clientes')">PDF</button>
+        </div>
+      </div>
+      <div class="add-box" style="padding:14px">
+        <div style="font-size:12px;font-weight:700;margin-bottom:4px">📋 Historial</div>
+        <div style="font-size:11px;color:var(--gris);margin-bottom:12px">Todos los movimientos</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-pub" style="flex:1;padding:10px;font-size:11px" onclick="exportCSV('historial')">CSV</button>
+          <button class="btn-pub" style="flex:1;padding:10px;font-size:11px;background:var(--marron)" onclick="exportPDF('historial')">PDF</button>
         </div>
       </div>
     </div>
@@ -918,6 +987,11 @@ async function renderAdmin() {
   if(milestoneRows && milestoneRows[0]) {
     document.getElementById('milestoneThreshold').value = milestoneRows[0].valor;
   }
+
+  // ── INTELIGENCIA ──
+  renderCrecimiento(clientes||[]);
+  renderRanking(clientes||[]);
+  renderRiesgo(clientes||[]);
 
   // Cumpleaños hoy
   const hoy = new Date();
@@ -1339,6 +1413,261 @@ async function admAjustarPuntos() {
   ajusteSelectedClient = null;
   if(currentUser && currentUser.id === ajusteSelectedClient?.id) currentUser.puntos = nuevo;
   renderAdmin();
+}
+
+// ══════════════════════════════
+// INTELIGENCIA
+// ══════════════════════════════
+function renderCrecimiento(clientes) {
+  // Group by week (last 8 weeks)
+  const now = new Date();
+  const weeks = [];
+  for(let i=7; i>=0; i--) {
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - (i*7) - now.getDay());
+    weekStart.setHours(0,0,0,0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+    const count = clientes.filter(c => {
+      const d = new Date(c.created_at);
+      return d >= weekStart && d < weekEnd;
+    }).length;
+    const label = weekStart.toLocaleDateString('es-AR', {day:'2-digit',month:'2-digit'});
+    weeks.push({ label, count });
+  }
+  const max = Math.max(...weeks.map(w => w.count), 1);
+  const bars = document.getElementById('chartBars');
+  bars.innerHTML = '';
+  weeks.forEach(w => {
+    const pct = Math.max((w.count / max) * 100, w.count > 0 ? 8 : 4);
+    const col = document.createElement('div');
+    col.className = 'chart-bar-col';
+    col.innerHTML = '<div class="chart-bar" data-val="' + w.count + ' registros" style="height:' + pct + '%' + (w.count === 0 ? ';background:rgba(255,255,255,0.08)' : '') + '"></div><div class="chart-lbl">' + w.label + '</div>';
+    bars.appendChild(col);
+  });
+}
+
+function renderRanking(clientes) {
+  const el = document.getElementById('rankingList');
+  const top = [...clientes].sort((a,b) => b.puntos - a.puntos).slice(0, 10);
+  if(top.length === 0 || top[0].puntos === 0) {
+    el.innerHTML = '<div class="empty-state">Aún no hay puntos acumulados.</div>';
+    return;
+  }
+  el.innerHTML = '';
+  top.forEach((c, i) => {
+    if(c.puntos === 0) return;
+    const div = document.createElement('div');
+    div.className = 'ranking-item';
+    const medalClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    div.innerHTML = '<div class="rank-num ' + medalClass + '">' + (medal||('#'+(i+1))) + '</div><div class="rank-info"><div class="rank-name">' + c.nombre + ' ' + c.apellido + '</div><div class="rank-meta">' + c.mail + '</div></div><div class="rank-pts">' + c.puntos + ' pts</div>';
+    el.appendChild(div);
+  });
+}
+
+function renderRiesgo(clientes) {
+  const el = document.getElementById('riesgoList');
+  const now = new Date();
+  const riesgo = clientes
+    .filter(c => c.puntos > 0)
+    .map(c => {
+      // Use created_at as fallback — ideally last activity but we don't have it here
+      return { ...c, _meses: null };
+    });
+
+  // We'll show clients with puntos who registered > 2 months ago as potential risk
+  // Real check happens when client logs in (checks historial)
+  // Here show clients registered > 60 days with puntos > 0
+  const advertencia = clientes.filter(c => {
+    if(c.puntos === 0) return false;
+    const dias = (now - new Date(c.created_at)) / (1000*60*60*24);
+    return dias >= 60 && dias < 90;
+  });
+  const critico = clientes.filter(c => {
+    if(c.puntos === 0) return false;
+    const dias = (now - new Date(c.created_at)) / (1000*60*60*24);
+    return dias >= 90;
+  });
+
+  if(advertencia.length === 0 && critico.length === 0) {
+    el.innerHTML = '<div class="empty-state">¡Ningún cliente en riesgo por ahora!</div>';
+    return;
+  }
+  el.innerHTML = '';
+
+  critico.forEach(c => {
+    const dias = Math.floor((now - new Date(c.created_at)) / (1000*60*60*24));
+    const div = document.createElement('div');
+    div.className = 'riesgo-item critico';
+    div.dataset.mail = c.mail; div.dataset.nombre = c.nombre;
+    div.innerHTML = '<div class="riesgo-av critico">' + c.nombre[0].toUpperCase() + '</div><div class="riesgo-info"><div class="riesgo-name">' + c.nombre + ' ' + c.apellido + '</div><div class="riesgo-meta">' + c.mail + ' · hace ' + dias + ' días</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="riesgo-pts critico">' + c.puntos + ' pts</div><button class="btn-contactar" onclick="var p=this.closest(\"[data-mail]\");contactarRiesgo(p.dataset.mail,p.dataset.nombre)">Contactar</button></div>';
+    el.appendChild(div);
+  });
+
+  advertencia.forEach(c => {
+    const dias = Math.floor((now - new Date(c.created_at)) / (1000*60*60*24));
+    const div = document.createElement('div');
+    div.className = 'riesgo-item advertencia';
+    div.dataset.mail = c.mail; div.dataset.nombre = c.nombre;
+    div.innerHTML = '<div class="riesgo-av advertencia">' + c.nombre[0].toUpperCase() + '</div><div class="riesgo-info"><div class="riesgo-name">' + c.nombre + ' ' + c.apellido + '</div><div class="riesgo-meta">' + c.mail + ' · hace ' + dias + ' días</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="riesgo-pts advertencia">' + c.puntos + ' pts</div><button class="btn-contactar" onclick="var p=this.closest(\"[data-mail]\");contactarRiesgo(p.dataset.mail,p.dataset.nombre)">Contactar</button></div>';
+    el.appendChild(div);
+  });
+}
+
+async function contactarRiesgo(mail, nombre) {
+  const html = `
+    <div style="font-family:'Helvetica Neue',sans-serif;max-width:520px;margin:0 auto;background:#f7f2eb;border-radius:16px;overflow:hidden">
+      <div style="background:#006646;padding:32px 28px;text-align:center">
+        <div style="font-size:11px;font-weight:800;letter-spacing:0.25em;color:rgba(255,255,255,0.6);text-transform:uppercase;margin-bottom:8px">BÚLGARO CAFÉ</div>
+        <div style="font-size:26px;font-weight:900;color:#ffffff;margin-bottom:6px">¡Te extrañamos, ${nombre}! ☕</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.7)">Café con alma de mundo</div>
+      </div>
+      <div style="padding:32px 28px">
+        <p style="font-size:15px;color:#333;line-height:1.7;margin-bottom:20px">
+          Hace un tiempo que no te vemos por Búlgaro y no queremos que pierdas tus puntos acumulados.
+        </p>
+        <p style="font-size:15px;color:#333;line-height:1.7;margin-bottom:24px">
+          Pasate a tomar un café antes de que venzan — te esperamos con los brazos abiertos. 🤗
+        </p>
+        <div style="text-align:center;margin:24px 0">
+          <a href="https://bulgaroclub.netlify.app" style="display:inline-block;background:#b68150;color:#fff;font-weight:800;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;padding:14px 28px;border-radius:40px;text-decoration:none">Ver mis puntos →</a>
+        </div>
+      </div>
+      <div style="background:#e8e0d0;padding:18px 28px;text-align:center">
+        <p style="font-size:11px;color:#aaa;margin:0">Búlgaro Café · Bahía Blanca, Argentina</p>
+      </div>
+    </div>`;
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer re_hnnqUhwU_HEDMVrxpvEE989hnMjFaQMki', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Búlgaro Club <onboarding@resend.dev>',
+        to: [mail],
+        subject: '☕ ' + nombre + ', ¡no pierdas tus puntos de Búlgaro Club!',
+        html
+      })
+    });
+    if(r.ok) toast('Mail enviado a ' + nombre + ' ✓');
+    else toast('Error al enviar — verificá el dominio en Resend', true);
+  } catch(e) { toast('Error de conexión', true); }
+}
+
+// ══════════════════════════════
+// EXPORTAR
+// ══════════════════════════════
+async function exportCSV(tipo) {
+  let rows, headers, filename;
+
+  if(tipo === 'clientes') {
+    const data = await dbSelect('clientes', {}, { order:'created_at', asc:false });
+    headers = ['Nombre','Apellido','Email','Celular','Puntos','Fecha nacimiento','Registrado'];
+    rows = (data||[]).map(c => [
+      c.nombre, c.apellido, c.mail, c.celular, c.puntos,
+      c.fecha_nacimiento, formatDate(c.created_at)
+    ]);
+    filename = 'bulgaro-clientes-' + today() + '.csv';
+  } else {
+    const data = await dbSelect('historial', {}, { order:'created_at', asc:false });
+    const clientes = await dbSelect('clientes');
+    const cliMap = {};
+    (clientes||[]).forEach(c => cliMap[c.id] = c.nombre + ' ' + c.apellido);
+    headers = ['Cliente','Descripción','Puntos','Fecha'];
+    rows = (data||[]).map(h => [
+      cliMap[h.cliente_id] || h.cliente_id,
+      h.descripcion, h.delta, formatDate(h.created_at)
+    ]);
+    filename = 'bulgaro-historial-' + today() + '.csv';
+  }
+
+  const csv = [headers, ...rows]
+    .map(r => r.map(v => '"' + String(v||'').replace(/"/g,'""') + '"').join(','))
+    .join('\n');
+  const bom = '﻿'; // UTF-8 BOM para Excel
+  const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exportado ✓');
+}
+
+async function exportPDF(tipo) {
+  let data, clientes, cliMap;
+  const fecha = new Date().toLocaleDateString('es-AR');
+
+  if(tipo === 'clientes') {
+    data = await dbSelect('clientes', {}, { order:'puntos', asc:false });
+  } else {
+    data = await dbSelect('historial', {}, { order:'created_at', asc:false });
+    clientes = await dbSelect('clientes');
+    cliMap = {};
+    (clientes||[]).forEach(c => cliMap[c.id] = c.nombre + ' ' + c.apellido);
+  }
+
+  let tableRows = '';
+  if(tipo === 'clientes') {
+    (data||[]).forEach((c,i) => {
+      const bg = i%2===0 ? '#f9f9f9' : '#fff';
+      tableRows += `<tr style="background:${bg}">
+        <td>${c.nombre} ${c.apellido}</td>
+        <td>${c.mail}</td>
+        <td>${c.celular}</td>
+        <td style="text-align:center;font-weight:700;color:#006646">${c.puntos}</td>
+        <td>${c.fecha_nacimiento||''}</td>
+      </tr>`;
+    });
+  } else {
+    (data||[]).slice(0,200).forEach((h,i) => {
+      const bg = i%2===0 ? '#f9f9f9' : '#fff';
+      const color = h.delta > 0 ? '#006646' : '#e05a5a';
+      tableRows += `<tr style="background:${bg}">
+        <td>${cliMap[h.cliente_id]||'—'}</td>
+        <td>${h.descripcion}</td>
+        <td style="text-align:center;font-weight:700;color:${color}">${h.delta>0?'+':''}${h.delta}</td>
+        <td>${formatDate(h.created_at)}</td>
+      </tr>`;
+    });
+  }
+
+  const headers = tipo === 'clientes'
+    ? '<th>Nombre</th><th>Email</th><th>Celular</th><th>Puntos</th><th>Nacimiento</th>'
+    : '<th>Cliente</th><th>Descripción</th><th>Puntos</th><th>Fecha</th>';
+
+  const titulo = tipo === 'clientes' ? 'Listado de Clientes' : 'Historial de Puntos';
+  const total = tipo === 'clientes'
+    ? `<p style="font-size:13px;color:#666">Total: <strong>${(data||[]).length} clientes</strong></p>`
+    : `<p style="font-size:13px;color:#666">Mostrando últimos 200 movimientos</p>`;
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    body { font-family: 'Helvetica Neue', sans-serif; padding: 32px; color: #222; }
+    .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; padding-bottom:16px; border-bottom:2px solid #006646; }
+    .brand { font-size:11px; font-weight:800; letter-spacing:0.2em; color:#006646; text-transform:uppercase; }
+    h1 { font-size:22px; font-weight:900; margin:4px 0; }
+    .fecha { font-size:12px; color:#999; }
+    table { width:100%; border-collapse:collapse; font-size:12px; }
+    th { background:#006646; color:#fff; padding:10px 12px; text-align:left; font-weight:700; font-size:11px; letter-spacing:0.05em; text-transform:uppercase; }
+    td { padding:9px 12px; border-bottom:1px solid #eee; }
+    @media print { body { padding:16px; } }
+  </style></head><body>
+  <div class="header">
+    <div><div class="brand">Búlgaro Café</div><h1>${titulo}</h1>${total}</div>
+    <div class="fecha">Generado el ${fecha}</div>
+  </div>
+  <table><thead><tr>${headers}</tr></thead><tbody>${tableRows}</tbody></table>
+  <scr'+'ipt>window.onload = () => window.print()</scr'+'ipt>
+  </body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  toast('PDF listo para imprimir ✓');
+}
+
+function today() {
+  return new Date().toISOString().slice(0,10);
 }
 
 // ══════════════════════════════
