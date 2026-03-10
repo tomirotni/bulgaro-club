@@ -267,7 +267,7 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
 <div class="screen active" id="registro">
   <div class="reg-hero">
     <div class="reg-logo">☕</div>
-    <div class="reg-titulo">Búlgaro Fidelización</div>
+    <div class="reg-titulo">Búlgaro Club</div>
     <div class="reg-sub">Sumate al programa y empezá a ganar puntos<br>con cada visita. <em>Café con alma de mundo.</em></div>
   </div>
   <div class="reg-body">
@@ -463,30 +463,36 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
 
 <script>
 // ══════════════════════════════
-// PASSWORDS
+// AUTH — contraseñas desde Supabase
 // ══════════════════════════════
-const ADMIN_PASS = 'bulgaro2024';
-const EMP_PASSWORDS = { 'emp1': 'Anto', 'emp2': 'Ale', 'emp3': 'Bocha' };
 let adminUnlocked = false;
 let empleadoActual = null;
 let empTurnoActividad = [];
 
-function pedirPasswordAdmin() {
+async function pedirPasswordAdmin() {
   if(adminUnlocked) { goScreen('admin','tabAdm'); return; }
   const pass = prompt('Contraseña de administrador:');
-  if(pass === ADMIN_PASS) { adminUnlocked = true; goScreen('admin','tabAdm'); }
-  else if(pass !== null) toast('Contraseña incorrecta', true);
+  if(!pass) return;
+  const staff = await dbSelect('usuarios_staff', { rol: 'admin', activo: true });
+  const match = (staff||[]).find(u => u.password_hash === pass);
+  if(match) {
+    adminUnlocked = true;
+    goScreen('admin','tabAdm');
+  } else {
+    toast('Contraseña incorrecta', true);
+  }
 }
 
-function pedirPasswordEmpleado() {
+async function pedirPasswordEmpleado() {
   if(empleadoActual) { goScreen('empleado','tabEmp'); return; }
   const pass = prompt('Contraseña de empleado:');
   if(!pass) return;
-  const entry = Object.entries(EMP_PASSWORDS).find(([k,v]) => v.toLowerCase() === pass.toLowerCase());
-  if(entry) {
-    empleadoActual = { key: entry[0], nombre: entry[1] };
+  const staff = await dbSelect('usuarios_staff', { rol: 'empleado', activo: true });
+  const match = (staff||[]).find(u => u.password_hash.toLowerCase() === pass.toLowerCase());
+  if(match) {
+    empleadoActual = { id: match.id, nombre: match.nombre };
     empTurnoActividad = [];
-    document.getElementById('empNombre').textContent = entry[1];
+    document.getElementById('empNombre').textContent = match.nombre;
     goScreen('empleado','tabEmp');
     renderEmpActividad();
   } else {
@@ -949,11 +955,82 @@ function closeModal() { document.getElementById('mailModal').classList.remove('v
 
 async function enviarMail() {
   if(!mailTargetClient) return;
-  await dbUpdate('clientes', { id: mailTargetClient.id }, { bday_sent: true });
-  toast('Mail simulado enviado a ' + mailTargetClient.mail + ' 🎂');
-  document.getElementById('btnEnviarMail').textContent = '✓ Enviado';
-  document.getElementById('btnEnviarMail').disabled = true;
-  setTimeout(() => { closeModal(); renderAdmin(); }, 800);
+  const btn = document.getElementById('btnEnviarMail');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+
+  const code = 'BDAY-' + mailTargetClient.id.slice(0,6).toUpperCase();
+  const nombre = mailTargetClient.nombre;
+  const mailDest = mailTargetClient.mail;
+
+  const htmlMail = `
+    <div style="font-family:'Helvetica Neue',sans-serif;max-width:520px;margin:0 auto;background:#f7f2eb;border-radius:16px;overflow:hidden">
+      <div style="background:#006646;padding:32px 28px;text-align:center">
+        <div style="font-size:11px;font-weight:800;letter-spacing:0.25em;color:rgba(255,255,255,0.6);text-transform:uppercase;margin-bottom:8px">BÚLGARO CAFÉ</div>
+        <div style="font-size:28px;font-weight:900;color:#ffffff;margin-bottom:6px">¡Feliz cumple, ${nombre}! 🎂</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.7)">Café con alma de mundo</div>
+      </div>
+      <div style="padding:32px 28px">
+        <p style="font-size:15px;color:#333;line-height:1.7;margin-bottom:20px">
+          Hoy es un día especial y en Búlgaro lo queremos celebrar con vos.<br>
+          Pasate hoy por el café y presentá este código:
+        </p>
+        <div style="background:#006646;border-radius:12px;padding:20px;text-align:center;margin:20px 0">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.2em;color:rgba(255,255,255,0.65);text-transform:uppercase;margin-bottom:8px">Tu código de regalo</div>
+          <div style="font-size:28px;font-weight:900;color:#ffffff;letter-spacing:0.2em">${code}</div>
+        </div>
+        <p style="font-size:14px;color:#555;line-height:1.6;margin-bottom:12px">
+          Tu barista favorito te va a preparar el café que más te guste. <strong>Sin costo, sin vueltas.</strong>
+        </p>
+        <div style="background:#fff;border-radius:10px;padding:14px 16px;border-left:4px solid #b68150">
+          <p style="font-size:12px;color:#888;margin:0">⏰ Válido solo hoy · 📍 Presentá este código en caja · 1 uso por persona</p>
+        </div>
+      </div>
+      <div style="background:#e8e0d0;padding:18px 28px;text-align:center">
+        <p style="font-size:11px;color:#aaa;margin:0">Búlgaro Café · Bahía Blanca, Argentina<br>Este mail fue enviado porque sos parte del programa de fidelización.</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer re_hnnqUhwU_HEDMVrxpvEE989hnMjFaQMki',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'Búlgaro Café <onboarding@resend.dev>',
+        to: [mailDest],
+        subject: '🎂 ¡Feliz cumpleaños, ' + nombre + '! Tu café gratis te espera',
+        html: htmlMail
+      })
+    });
+    const data = await r.json();
+    if(r.ok && data.id) {
+      await dbUpdate('clientes', { id: mailTargetClient.id }, { bday_sent: true });
+      toast('¡Mail enviado a ' + mailDest + '! 🎂');
+      btn.textContent = '✓ Enviado';
+      setTimeout(() => { closeModal(); renderAdmin(); }, 800);
+    } else {
+      console.error('Resend error:', data);
+      // Si falla por dominio gratuito, igual marcamos como "gestionado"
+      const msg = data.message || 'Error al enviar';
+      if(msg.includes('domain') || msg.includes('verify')) {
+        toast('Dominio no verificado — copiá el código manualmente', true);
+        btn.textContent = 'Enviar mail ✓';
+        btn.disabled = false;
+      } else {
+        toast('Error: ' + msg, true);
+        btn.textContent = 'Reintentar';
+        btn.disabled = false;
+      }
+    }
+  } catch(e) {
+    toast('Error de conexión al enviar mail', true);
+    btn.textContent = 'Reintentar';
+    btn.disabled = false;
+  }
 }
 
 // ══════════════════════════════
