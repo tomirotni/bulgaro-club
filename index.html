@@ -287,6 +287,13 @@ body { font-family:var(--font); background:var(--crema); color:var(--negro); min
 .mult-actions { display:flex; gap:8px; margin-top:6px; }
 .btn-edit { padding:7px 12px; border-radius:8px; background:rgba(182,129,80,0.1); border:1px solid rgba(182,129,80,0.25); color:var(--marron); font-size:11px; font-weight:700; cursor:pointer; font-family:var(--font); }
 input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity(0.4); }
+/* Admin tabs */
+.adm-tabs { display:flex; gap:4px; padding:16px 20px 0; background:var(--crema2); }
+.adm-tab { flex:1; padding:10px 6px; border-radius:12px 12px 0 0; text-align:center; font-size:11px; font-weight:700; cursor:pointer; transition:all 0.2s; color:rgba(42,31,20,0.4); letter-spacing:0.03em; border:1px solid transparent; border-bottom:none; }
+.adm-tab.active { background:var(--crema); color:var(--verde); border-color:rgba(0,0,0,0.08); }
+.adm-tab-icon { font-size:16px; display:block; margin-bottom:3px; }
+.adm-panel { display:none; }
+.adm-panel.active { display:block; background:var(--crema); border-top:1px solid rgba(0,0,0,0.08); }
 /* Campañas mail */
 .campana-box { background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:16px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
 .campana-seg { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
@@ -579,212 +586,216 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
     <div class="stat-box-wide"><div class="stat-wide-num" id="sPtsEmitidos">—</div><div class="stat-wide-lbl">Puntos emitidos</div></div>
     <div class="stat-box-wide"><div class="stat-wide-num" id="sPtsCanjeados">—</div><div class="stat-wide-lbl">Puntos canjeados</div></div>
   </div>
-  <!-- registrar compra -->
-  <div class="adm-sec">
-    <div class="adm-sec-tit">Registrar compra</div>
-    <div class="compra-card">
-      <div class="compra-title">Buscar cliente</div>
-      <div class="search-row">
-        <input class="field-input" id="admSearch" type="text" placeholder="DNI, nombre, email o celular...">
-        <button class="btn-buscar" onclick="admBuscar()">Buscar</button>
-      </div>
-      <div class="cliente-chip" id="admChip">
-        <div class="chip-av" id="admChipAv">?</div>
-        <div><div class="chip-name" id="admChipName">—</div><div class="chip-pts" id="admChipPts">—</div></div>
-        <div class="chip-mult" id="admChipMult" style="display:none">×2</div>
-      </div>
-      <div class="monto-row">
-        <input class="field-input" id="admMonto" type="number" placeholder="Monto de la compra ($)">
-        <button class="btn-sumar" onclick="admSumarPuntos()">Sumar pts</button>
-      </div>
-    </div>
+
+  <!-- TABS -->
+  <div class="adm-tabs">
+    <div class="adm-tab active" id="atab-ops" onclick="switchAdmTab('ops')"><span class="adm-tab-icon">⚡</span>Operaciones</div>
+    <div class="adm-tab" id="atab-config" onclick="switchAdmTab('config')"><span class="adm-tab-icon">⚙️</span>Configuración</div>
+    <div class="adm-tab" id="atab-analisis" onclick="switchAdmTab('analisis')"><span class="adm-tab-icon">📊</span>Análisis</div>
   </div>
-  <!-- cumpleaños hoy -->
-  <div class="adm-sec"><div class="adm-sec-tit">Cumpleaños hoy 🎂</div><div id="bdayHoy"></div></div>
-  <!-- multiplicadores -->
-  <div class="adm-sec">
-    <div class="adm-sec-tit">Multiplicadores</div>
-    <div id="multList"></div>
-    <div class="adm-sec-tit" style="margin-top:20px">Agregar multiplicador</div>
-    <div class="add-box">
-      <div class="add-row">
-        <div class="field-group add-full"><label class="field-label">Nombre</label><input class="field-input" id="mNombre" type="text" placeholder="Ej: Domingo especial"></div>
-      </div>
-      <div class="add-row">
-        <div class="field-group add-full"><label class="field-label">Detalle</label><input class="field-input" id="mDetalle" type="text" placeholder="Ej: Todos los domingos · 10:00 a 13:00 hs"></div>
-      </div>
-      <div class="add-row">
-        <div class="field-group"><label class="field-label">Valor ×</label><input class="field-input" id="mValor" type="number" step="0.5" placeholder="2"></div>
-      </div>
-      <button class="btn-pub" onclick="admAgregarMultiplicador()">Agregar multiplicador</button>
-    </div>
-  </div>
-  <!-- premios -->
-  <div class="adm-sec">
-    <div class="adm-sec-tit">Premios activos</div>
-    <div id="premiosAdm"></div>
-    <div class="adm-sec-tit" style="margin-top:20px">Agregar premio</div>
-    <div class="add-box">
-      <div class="add-row">
-        <div class="field-group add-full"><label class="field-label">Nombre</label><input class="field-input" id="newNombre" type="text" placeholder="Blend Kenya edición limitada"></div>
-      </div>
-      <div class="add-row">
-        <div class="field-group"><label class="field-label">Puntos</label><input class="field-input" id="newPts" type="number" placeholder="300"></div>
-        <div class="field-group"><label class="field-label">Stock</label><input class="field-input" id="newStock" type="number" placeholder="5"></div>
-      </div>
-      <div class="add-row">
-        <div class="field-group"><label class="field-label">Tipo</label><select class="field-input" id="newTipo" style="appearance:none"><option>Producto</option><option>Experiencia</option><option>Exclusivo</option></select></div>
-        <div class="field-group"><label class="field-label">Emoji</label><input class="field-input" id="newEmoji" type="text" placeholder="☕"></div>
-      </div>
-      <button class="btn-pub" onclick="admAgregarPremio()">Publicar premio</button>
-    </div>
-  </div>
-  <!-- clientes -->
-  <div class="adm-sec"><div class="adm-sec-tit">Actividad de empleados 👷</div><div id="empActividadAdmin"><div class="empty-state">Sin actividad registrada hoy.</div></div></div>
-  <!-- notificacion hito -->
-  <div class="adm-sec">
-    <div class="adm-sec-tit">Notificación de hito ⭐</div>
-    <div class="milestone-config">
-      <div style="font-size:24px">🏆</div>
-      <div class="milestone-config-info">
-        Avisar al cliente cuando llegue a
-        <input type="number" id="milestoneThreshold" style="width:70px;background:rgba(255,255,255,0.8);border:1px solid rgba(0,0,0,0.15);border-radius:8px;padding:4px 8px;color:#2a1f14;font-family:var(--font);font-size:14px;font-weight:700;margin:0 6px" placeholder="200">
-        puntos
-        <div class="milestone-config-sub">Por cartel en la app + mail automático</div>
-      </div>
-      <button class="btn-buscar" onclick="guardarMilestone()">Guardar</button>
-    </div>
-  </div>
-  <!-- ajuste manual de puntos -->
-  <div class="adm-sec">
-    <div class="adm-sec-tit">Ajuste manual de puntos</div>
-    <div class="compra-card">
-      <div class="search-row">
-        <input class="field-input" id="ajusteSearch" type="text" placeholder="Buscar cliente...">
-        <button class="btn-buscar" onclick="ajusteBuscar()">Buscar</button>
-      </div>
-      <div class="cliente-chip" id="ajusteChip">
-        <div class="chip-av" id="ajusteChipAv">?</div>
-        <div><div class="chip-name" id="ajusteChipName">—</div><div class="chip-pts" id="ajusteChipPts">—</div></div>
-      </div>
-      <div class="ajuste-box" id="ajusteBox">
-        <div style="font-size:12px;color:#7a6a5a;margin-bottom:10px">Ingresá el nuevo total de puntos para este cliente</div>
+
+  <!-- PANEL OPERACIONES -->
+  <div class="adm-panel active" id="apanel-ops">
+    <div class="adm-sec" style="padding-top:20px">
+      <div class="adm-sec-tit">Registrar compra</div>
+      <div class="compra-card">
+        <div class="compra-title">Buscar cliente</div>
+        <div class="search-row">
+          <input class="field-input" id="admSearch" type="text" placeholder="DNI, nombre, email o celular...">
+          <button class="btn-buscar" onclick="admBuscar()">Buscar</button>
+        </div>
+        <div class="cliente-chip" id="admChip">
+          <div class="chip-av" id="admChipAv">?</div>
+          <div><div class="chip-name" id="admChipName">—</div><div class="chip-pts" id="admChipPts">—</div></div>
+          <div class="chip-mult" id="admChipMult" style="display:none">×2</div>
+        </div>
         <div class="monto-row">
-          <input class="field-input" id="ajusteValor" type="number" placeholder="Nuevo total de puntos">
-          <button class="btn-sumar" onclick="admAjustarPuntos()">Ajustar</button>
+          <input class="field-input" id="admMonto" type="number" placeholder="Monto de la compra ($)">
+          <button class="btn-sumar" onclick="admSumarPuntos()">Sumar pts</button>
         </div>
       </div>
     </div>
-  </div>
-  <!-- inteligencia -->
-  <div class="adm-sec">
-    <div class="adm-sec-tit">Inteligencia 🧠</div>
-    <!-- métricas rápidas -->
-    <div class="metric-grid">
-      <div class="metric-box"><div class="metric-num" id="mPtsPromedio">—</div><div class="metric-lbl">Pts promedio</div></div>
-      <div class="metric-box"><div class="metric-num" id="mTopPremio">—</div><div class="metric-lbl">Premio top</div></div>
-      <div class="metric-box"><div class="metric-num" id="mDiaPico">—</div><div class="metric-lbl">Día pico</div></div>
-    </div>
-    <!-- crecimiento -->
-    <div class="chart-wrap" style="margin-bottom:14px">
-      <div class="chart-title">Registros por semana</div>
-      <div class="chart-bars" id="chartBars"></div>
-    </div>
-    <!-- premios más canjeados -->
-    <div class="adm-sec-tit" style="margin-top:4px">Premios más canjeados 🎁</div>
-    <div id="topPremiosList"></div>
-    <!-- heatmap días -->
-    <div class="adm-sec-tit" style="margin-top:20px">Actividad por día 📅</div>
-    <div class="chart-wrap">
-      <div class="heatmap-lbl" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center">
-        <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
-      </div>
-      <div class="heatmap" id="heatmapDias"></div>
-    </div>
-    <!-- ranking -->
-    <div class="adm-sec-tit" style="margin-top:4px">Ranking de clientes 🏆</div>
-    <div id="rankingList"></div>
-    <!-- riesgo vencimiento -->
-    <div class="adm-sec-tit" style="margin-top:20px">En riesgo de vencimiento ⚠️</div>
-    <div id="riesgoList"></div>
-  </div>
-  <!-- notificaciones push -->
-  <div class="adm-sec">
-    <div class="adm-sec-tit">Notificación push 🔔</div>
-    <div class="campana-box">
-      <div style="font-size:12px;color:#7a6a5a;margin-bottom:12px">Se envía a todos los clientes que activaron las notificaciones.</div>
-      <div class="field-group">
-        <label class="field-label">Título</label>
-        <input class="field-input" id="pushTitulo" type="text" placeholder="Ej: ¡Puntos dobles hoy!">
-      </div>
-      <div class="field-group">
-        <label class="field-label">Mensaje</label>
-        <input class="field-input" id="pushMsg" type="text" placeholder="Ej: Hasta las 12hs, venite a Bulgaro">
-      </div>
-      <button class="btn-pub" onclick="enviarPush()">Enviar notificación 🔔</button>
-    </div>
-  </div>
-  <!-- campañas mail -->
-  <div class="adm-sec">
-    <div class="adm-sec-tit">Campaña de mail 📧</div>
-    <div class="campana-box">
-      <div style="font-size:12px;font-weight:700;color:var(--negro);margin-bottom:10px">¿A quién le mandás?</div>
-      <div class="campana-seg">
-        <div class="seg-btn" id="seg-todos" onclick="selectSeg('todos')">👥 Todos</div>
-        <div class="seg-btn" id="seg-top10" onclick="selectSeg('top10')">🏆 Top 10</div>
-        <div class="seg-btn" id="seg-puntos" onclick="selectSeg('puntos')">⭐ Por puntos</div>
-        <div class="seg-btn" id="seg-inactivos" onclick="selectSeg('inactivos')">⚠️ Inactivos</div>
-      </div>
-      <div class="seg-param" id="param-puntos">
-        <label class="field-label">Clientes con más de</label>
-        <div style="display:flex;align-items:center;gap:8px">
-          <input class="field-input" id="segPuntosMin" type="number" placeholder="100" style="max-width:100px">
-          <span style="font-size:13px;color:#7a6a5a">puntos</span>
+    <div class="adm-sec"><div class="adm-sec-tit">Cumpleaños hoy 🎂</div><div id="bdayHoy"></div></div>
+    <div class="adm-sec">
+      <div class="adm-sec-tit">Notificación push 🔔</div>
+      <div class="campana-box">
+        <div style="font-size:12px;color:#7a6a5a;margin-bottom:12px">Se envía a todos los clientes que activaron las notificaciones.</div>
+        <div class="field-group">
+          <label class="field-label">Título</label>
+          <input class="field-input" id="pushTitulo" type="text" placeholder="Ej: ¡Puntos dobles hoy!">
         </div>
-      </div>
-      <div class="seg-param" id="param-inactivos">
-        <label class="field-label">Sin actividad hace más de</label>
-        <div style="display:flex;align-items:center;gap:8px">
-          <input class="field-input" id="segDiasMin" type="number" placeholder="30" style="max-width:100px">
-          <span style="font-size:13px;color:#7a6a5a">días</span>
+        <div class="field-group">
+          <label class="field-label">Mensaje</label>
+          <input class="field-input" id="pushMsg" type="text" placeholder="Ej: Hasta las 12hs, venite a Bulgaro">
         </div>
+        <button class="btn-pub" onclick="enviarPush()">Enviar notificación 🔔</button>
       </div>
-      <div class="field-group">
-        <label class="field-label">Asunto del mail</label>
-        <input class="field-input" id="campanaAsunto" type="text" placeholder="Ej: ¡Novedades en Bulgaro!">
-      </div>
-      <div class="field-group">
-        <label class="field-label">Mensaje</label>
-        <textarea class="field-input" id="campanaMsg" rows="3" placeholder="Escribí el mensaje para tus clientes..." style="resize:none"></textarea>
-      </div>
-      <div class="campana-preview" id="campanaPreview">Seleccioná un segmento para ver a quiénes les llega.</div>
-      <button class="btn-pub" onclick="enviarCampana()">Enviar campaña ✉️</button>
     </div>
+    <div class="adm-sec"><div class="adm-sec-tit">Actividad de empleados 👷</div><div id="empActividadAdmin"><div class="empty-state">Sin actividad registrada hoy.</div></div></div>
+    <div class="pad"></div>
   </div>
-  <!-- exportar -->
-  <div class="adm-sec">
-    <div class="adm-sec-tit">Exportar datos</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="add-box" style="padding:14px">
-        <div style="font-size:12px;font-weight:700;margin-bottom:4px;color:var(--negro)">👥 Clientes</div>
-        <div style="font-size:11px;color:#7a6a5a;margin-bottom:12px">Nombre, mail, cel, puntos</div>
-        <div style="display:flex;gap:6px">
-          <button class="btn-pub" style="flex:1;padding:10px;font-size:11px" onclick="exportCSV('clientes')">CSV</button>
-          <button class="btn-pub" style="flex:1;padding:10px;font-size:11px;background:var(--marron)" onclick="exportPDF('clientes')">PDF</button>
+
+  <!-- PANEL CONFIGURACIÓN -->
+  <div class="adm-panel" id="apanel-config">
+    <div class="adm-sec" style="padding-top:20px">
+      <div class="adm-sec-tit">Multiplicadores</div>
+      <div id="multList"></div>
+      <div class="adm-sec-tit" style="margin-top:20px">Agregar multiplicador</div>
+      <div class="add-box">
+        <div class="add-row">
+          <div class="field-group add-full"><label class="field-label">Nombre</label><input class="field-input" id="mNombre" type="text" placeholder="Ej: Domingo especial"></div>
         </div>
+        <div class="add-row">
+          <div class="field-group add-full"><label class="field-label">Detalle</label><input class="field-input" id="mDetalle" type="text" placeholder="Ej: Todos los domingos · 10:00 a 13:00 hs"></div>
+        </div>
+        <div class="add-row">
+          <div class="field-group"><label class="field-label">Valor ×</label><input class="field-input" id="mValor" type="number" step="0.5" placeholder="2"></div>
+        </div>
+        <button class="btn-pub" onclick="admAgregarMultiplicador()">Agregar multiplicador</button>
       </div>
-      <div class="add-box" style="padding:14px">
-        <div style="font-size:12px;font-weight:700;margin-bottom:4px;color:var(--negro)">📋 Historial</div>
-        <div style="font-size:11px;color:#7a6a5a;margin-bottom:12px">Todos los movimientos</div>
-        <div style="display:flex;gap:6px">
-          <button class="btn-pub" style="flex:1;padding:10px;font-size:11px" onclick="exportCSV('historial')">CSV</button>
-          <button class="btn-pub" style="flex:1;padding:10px;font-size:11px;background:var(--marron)" onclick="exportPDF('historial')">PDF</button>
+    </div>
+    <div class="adm-sec">
+      <div class="adm-sec-tit">Premios activos</div>
+      <div id="premiosAdm"></div>
+      <div class="adm-sec-tit" style="margin-top:20px">Agregar premio</div>
+      <div class="add-box">
+        <div class="add-row">
+          <div class="field-group add-full"><label class="field-label">Nombre</label><input class="field-input" id="newNombre" type="text" placeholder="Blend Kenya edición limitada"></div>
+        </div>
+        <div class="add-row">
+          <div class="field-group"><label class="field-label">Puntos</label><input class="field-input" id="newPts" type="number" placeholder="300"></div>
+          <div class="field-group"><label class="field-label">Stock</label><input class="field-input" id="newStock" type="number" placeholder="5"></div>
+        </div>
+        <div class="add-row">
+          <div class="field-group"><label class="field-label">Tipo</label><select class="field-input" id="newTipo" style="appearance:none"><option>Producto</option><option>Experiencia</option><option>Exclusivo</option></select></div>
+          <div class="field-group"><label class="field-label">Emoji</label><input class="field-input" id="newEmoji" type="text" placeholder="☕"></div>
+        </div>
+        <button class="btn-pub" onclick="admAgregarPremio()">Publicar premio</button>
+      </div>
+    </div>
+    <div class="adm-sec">
+      <div class="adm-sec-tit">Notificación de hito ⭐</div>
+      <div class="milestone-config">
+        <div style="font-size:24px">🏆</div>
+        <div class="milestone-config-info">
+          Avisar al cliente cuando llegue a
+          <input type="number" id="milestoneThreshold" style="width:70px;background:rgba(255,255,255,0.8);border:1px solid rgba(0,0,0,0.15);border-radius:8px;padding:4px 8px;color:#2a1f14;font-family:var(--font);font-size:14px;font-weight:700;margin:0 6px" placeholder="200">
+          puntos
+          <div class="milestone-config-sub">Cartel en la app cuando el cliente entra</div>
+        </div>
+        <button class="btn-buscar" onclick="guardarMilestone()">Guardar</button>
+      </div>
+    </div>
+    <div class="adm-sec">
+      <div class="adm-sec-tit">Ajuste manual de puntos</div>
+      <div class="compra-card">
+        <div class="search-row">
+          <input class="field-input" id="ajusteSearch" type="text" placeholder="Buscar cliente...">
+          <button class="btn-buscar" onclick="ajusteBuscar()">Buscar</button>
+        </div>
+        <div class="cliente-chip" id="ajusteChip">
+          <div class="chip-av" id="ajusteChipAv">?</div>
+          <div><div class="chip-name" id="ajusteChipName">—</div><div class="chip-pts" id="ajusteChipPts">—</div></div>
+        </div>
+        <div class="ajuste-box" id="ajusteBox">
+          <div style="font-size:12px;color:#7a6a5a;margin-bottom:10px">Ingresá el nuevo total de puntos para este cliente</div>
+          <div class="monto-row">
+            <input class="field-input" id="ajusteValor" type="number" placeholder="Nuevo total de puntos">
+            <button class="btn-sumar" onclick="admAjustarPuntos()">Ajustar</button>
+          </div>
         </div>
       </div>
     </div>
+    <div class="pad"></div>
   </div>
-  <div class="adm-sec"><div class="adm-sec-tit">Todos los clientes</div><div id="clientesList"></div></div>
-  <div class="pad"></div>
+
+  <!-- PANEL ANÁLISIS -->
+  <div class="adm-panel" id="apanel-analisis">
+    <div class="adm-sec" style="padding-top:20px">
+      <div class="adm-sec-tit">Inteligencia 🧠</div>
+      <div class="metric-grid">
+        <div class="metric-box"><div class="metric-num" id="mPtsPromedio">—</div><div class="metric-lbl">Pts promedio</div></div>
+        <div class="metric-box"><div class="metric-num" id="mTopPremio">—</div><div class="metric-lbl">Premio top</div></div>
+        <div class="metric-box"><div class="metric-num" id="mDiaPico">—</div><div class="metric-lbl">Día pico</div></div>
+      </div>
+      <div class="chart-wrap" style="margin-bottom:14px">
+        <div class="chart-title">Registros por semana</div>
+        <div class="chart-bars" id="chartBars"></div>
+      </div>
+      <div class="adm-sec-tit" style="margin-top:4px">Premios más canjeados 🎁</div>
+      <div id="topPremiosList"></div>
+      <div class="adm-sec-tit" style="margin-top:20px">Actividad por día 📅</div>
+      <div class="chart-wrap">
+        <div class="heatmap-lbl" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center">
+          <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+        </div>
+        <div class="heatmap" id="heatmapDias"></div>
+      </div>
+      <div class="adm-sec-tit" style="margin-top:20px">Ranking de clientes 🏆</div>
+      <div id="rankingList"></div>
+      <div class="adm-sec-tit" style="margin-top:20px">En riesgo de vencimiento ⚠️</div>
+      <div id="riesgoList"></div>
+    </div>
+    <div class="adm-sec"><div class="adm-sec-tit">Todos los clientes</div><div id="clientesList"></div></div>
+    <div class="adm-sec">
+      <div class="adm-sec-tit">Exportar datos</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="add-box" style="padding:14px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px;color:var(--negro)">👥 Clientes</div>
+          <div style="font-size:11px;color:#7a6a5a;margin-bottom:12px">Nombre, mail, cel, puntos</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn-pub" style="flex:1;padding:10px;font-size:11px" onclick="exportCSV('clientes')">CSV</button>
+            <button class="btn-pub" style="flex:1;padding:10px;font-size:11px;background:var(--marron)" onclick="exportPDF('clientes')">PDF</button>
+          </div>
+        </div>
+        <div class="add-box" style="padding:14px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:4px;color:var(--negro)">📋 Historial</div>
+          <div style="font-size:11px;color:#7a6a5a;margin-bottom:12px">Todos los movimientos</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn-pub" style="flex:1;padding:10px;font-size:11px" onclick="exportCSV('historial')">CSV</button>
+            <button class="btn-pub" style="flex:1;padding:10px;font-size:11px;background:var(--marron)" onclick="exportPDF('historial')">PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="adm-sec">
+      <div class="adm-sec-tit">Campaña de mail 📧</div>
+      <div class="campana-box">
+        <div style="font-size:12px;font-weight:700;color:var(--negro);margin-bottom:10px">¿A quién le mandás?</div>
+        <div class="campana-seg">
+          <div class="seg-btn" id="seg-todos" onclick="selectSeg('todos')">👥 Todos</div>
+          <div class="seg-btn" id="seg-top10" onclick="selectSeg('top10')">🏆 Top 10</div>
+          <div class="seg-btn" id="seg-puntos" onclick="selectSeg('puntos')">⭐ Por puntos</div>
+          <div class="seg-btn" id="seg-inactivos" onclick="selectSeg('inactivos')">⚠️ Inactivos</div>
+        </div>
+        <div class="seg-param" id="param-puntos">
+          <label class="field-label">Clientes con más de</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input class="field-input" id="segPuntosMin" type="number" placeholder="100" style="max-width:100px">
+            <span style="font-size:13px;color:#7a6a5a">puntos</span>
+          </div>
+        </div>
+        <div class="seg-param" id="param-inactivos">
+          <label class="field-label">Sin actividad hace más de</label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input class="field-input" id="segDiasMin" type="number" placeholder="30" style="max-width:100px">
+            <span style="font-size:13px;color:#7a6a5a">días</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Asunto del mail</label>
+          <input class="field-input" id="campanaAsunto" type="text" placeholder="Ej: ¡Novedades en Bulgaro!">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Mensaje</label>
+          <textarea class="field-input" id="campanaMsg" rows="3" placeholder="Escribí el mensaje para tus clientes..." style="resize:none"></textarea>
+        </div>
+        <div class="campana-preview" id="campanaPreview">Seleccioná un segmento para ver a quiénes les llega.</div>
+        <button class="btn-pub" onclick="enviarCampana()">Enviar campaña ✉️</button>
+      </div>
+    </div>
+    <div class="pad"></div>
+  </div>
 </div>
 
 <!-- MODAL MAIL CUMPLEAÑOS -->
@@ -927,6 +938,13 @@ function goScreen(id, tabId) {
   document.getElementById('btnLogout').style.display = (id === 'cliente') ? 'block' : 'none';
   if(id === 'cliente') renderCliente();
   if(id === 'admin') renderAdmin();
+}
+
+function switchAdmTab(tab) {
+  document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.adm-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('atab-' + tab).classList.add('active');
+  document.getElementById('apanel-' + tab).classList.add('active');
 }
 
 // ══════════════════════════════
@@ -2235,32 +2253,37 @@ async function enviarPush() {
   const msg = document.getElementById('pushMsg').value.trim();
   if(!titulo || !msg) { toast('Completá título y mensaje', true); return; }
 
+  const btn = document.querySelector('[onclick="enviarPush()"]');
+  btn.textContent = 'Enviando...'; btn.disabled = true;
+
   try {
-    const r = await fetch('https://onesignal.com/api/v1/notifications', {
+    const r = await fetch('https://api.onesignal.com/notifications', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + ONESIGNAL_API_KEY
+        'Authorization': ONESIGNAL_API_KEY
       },
       body: JSON.stringify({
         app_id: ONESIGNAL_APP_ID,
-        included_segments: ['All'],
-        headings: { en: titulo },
-        contents: { en: msg },
+        included_segments: ['Total Subscriptions'],
+        headings: { es: titulo, en: titulo },
+        contents: { es: msg, en: msg },
         url: 'https://bulgaroclub.netlify.app'
       })
     });
     const data = await r.json();
-    if(r.ok && data.id) {
+    if(data.id) {
       toast('¡Push enviado! 🔔');
       document.getElementById('pushTitulo').value = '';
       document.getElementById('pushMsg').value = '';
     } else {
-      toast('Necesitás la REST API key de OneSignal', true);
+      console.error('OneSignal error:', data);
+      toast('Error: ' + (data.errors?.[0] || 'revisar consola'), true);
     }
   } catch(e) {
     toast('Error al enviar la notificación', true);
   }
+  btn.textContent = 'Enviar notificación 🔔'; btn.disabled = false;
 }
 
 // ══════════════════════════════
