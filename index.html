@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Búlgaro — Fidelización</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "474c8f6e-67f0-4df9-9ff7-3bf9b906ca19",
+      notifyButton: { enable: false },
+    });
+  });
+</script>
 
 <style>
 :root {
@@ -277,6 +287,38 @@ body { font-family:var(--font); background:var(--crema); color:var(--negro); min
 .mult-actions { display:flex; gap:8px; margin-top:6px; }
 .btn-edit { padding:7px 12px; border-radius:8px; background:rgba(182,129,80,0.1); border:1px solid rgba(182,129,80,0.25); color:var(--marron); font-size:11px; font-weight:700; cursor:pointer; font-family:var(--font); }
 input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity(0.4); }
+/* Campañas mail */
+.campana-box { background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:16px; padding:20px; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+.campana-seg { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.seg-btn { padding:10px 8px; border-radius:10px; border:1px solid rgba(0,0,0,0.1); background:rgba(0,0,0,0.03); font-family:var(--font); font-size:11px; font-weight:700; cursor:pointer; color:rgba(42,31,20,0.6); transition:all 0.2s; text-align:center; }
+.seg-btn.active { background:var(--verde); color:#fff; border-color:var(--verde); }
+.seg-param { background:rgba(0,0,0,0.03); border-radius:10px; padding:12px; margin-bottom:12px; display:none; }
+.seg-param.visible { display:block; }
+.campana-preview { background:var(--crema2); border-radius:10px; padding:12px 14px; margin-bottom:12px; font-size:12px; color:#7a6a5a; }
+.campana-preview strong { color:var(--negro); }
+/* Métricas extra */
+.metric-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
+.metric-box { background:#fff; border:1px solid rgba(0,0,0,0.07); border-radius:12px; padding:12px 10px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,0.04); }
+.metric-num { font-size:20px; font-weight:900; color:var(--marron); line-height:1; }
+.metric-lbl { font-size:9px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:rgba(42,31,20,0.4); margin-top:4px; }
+/* Premios canjeados */
+.top-premio { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.06); }
+.top-premio-bar { flex:1; height:6px; background:rgba(0,0,0,0.06); border-radius:3px; overflow:hidden; }
+.top-premio-fill { height:100%; background:var(--marron); border-radius:3px; }
+/* Heatmap días */
+.heatmap { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-top:8px; }
+.heatmap-cell { border-radius:6px; padding:6px 2px; text-align:center; font-size:9px; font-weight:700; }
+.heatmap-lbl { font-size:9px; color:#7a6a5a; text-align:center; margin-bottom:4px; }
+.canje-result { border-radius:12px; padding:14px 16px; margin-top:10px; }
+.canje-result.valido { background:rgba(0,102,70,0.08); border:1px solid rgba(0,102,70,0.25); }
+.canje-result.invalido { background:rgba(201,64,64,0.08); border:1px solid rgba(201,64,64,0.25); }
+.canje-result.usado { background:rgba(0,0,0,0.05); border:1px solid rgba(0,0,0,0.1); }
+.canje-titulo { font-size:14px; font-weight:800; margin-bottom:4px; }
+.canje-titulo.valido { color:var(--verde); }
+.canje-titulo.invalido { color:var(--rojo); }
+.canje-titulo.usado { color:var(--gris); }
+.canje-meta { font-size:12px; color:#7a6a5a; margin-bottom:12px; line-height:1.5; }
+.btn-confirmar-canje { width:100%; padding:12px; border-radius:11px; background:var(--verde); border:none; color:#fff; font-family:var(--font); font-size:13px; font-weight:800; cursor:pointer; }
 /* Cerrar sesión */
 .btn-logout { padding:7px 13px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.05em; cursor:pointer; border:1px solid rgba(224,90,90,0.25); color:rgba(224,90,90,0.6); background:transparent; font-family:var(--font); text-transform:uppercase; transition:all 0.2s; }
 .btn-logout:hover { border-color:var(--rojo); color:var(--rojo); }
@@ -450,6 +492,11 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
   <div id="noMultStrip" class="no-mult">Sin multiplicadores activos ahora</div>
   <div style="padding:0 20px;transform:translateY(-4px)">
     <div class="venc-note" id="vencNote" style="display:none">⚠️ <div><strong>Tus puntos vencen pronto.</strong> No registramos actividad hace más de 2 meses. Pasate por Búlgaro para mantenerlos.</div></div>
+    <div id="pushBanner" style="display:none;background:rgba(0,102,70,0.08);border:1px solid rgba(0,102,70,0.2);border-radius:12px;padding:12px 14px;display:none;align-items:center;gap:10px;margin-top:8px">
+      <span style="font-size:20px">🔔</span>
+      <div style="flex:1;font-size:12px;color:rgba(42,31,20,0.7);line-height:1.4">Activá las notificaciones para recibir novedades y puntos dobles</div>
+      <button onclick="activarPush()" style="padding:8px 12px;border-radius:8px;background:var(--verde);border:none;color:#fff;font-family:var(--font);font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap">Activar</button>
+    </div>
   </div>
   <div class="bday-banner" id="bdayBanner">
     <div class="bday-emoji">🎂</div>
@@ -497,6 +544,21 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
       <div style="margin-top:10px">
         <button class="btn-secondary-emp" onclick="empRestarPuntos()">— Corregir / restar puntos</button>
       </div>
+    </div>
+  </div>
+  <div class="adm-sec">
+    <div class="adm-sec-tit">Canjear premio 🎁</div>
+    <div class="compra-card">
+      <div class="compra-title">Buscar cliente</div>
+      <div class="search-row">
+        <input class="field-input" id="empCanjeSearch" type="text" placeholder="DNI, nombre o email...">
+        <button class="btn-buscar" onclick="empBuscarCanje()">Buscar</button>
+      </div>
+      <div class="cliente-chip" id="empCanjeChip">
+        <div class="chip-av" id="empCanjeChipAv">?</div>
+        <div><div class="chip-name" id="empCanjeChipName">—</div><div class="chip-pts" id="empCanjeChipPts">—</div></div>
+      </div>
+      <div id="empCanjeOpciones"></div>
     </div>
   </div>
   <div class="adm-sec">
@@ -617,10 +679,27 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
   <!-- inteligencia -->
   <div class="adm-sec">
     <div class="adm-sec-tit">Inteligencia 🧠</div>
+    <!-- métricas rápidas -->
+    <div class="metric-grid">
+      <div class="metric-box"><div class="metric-num" id="mPtsPromedio">—</div><div class="metric-lbl">Pts promedio</div></div>
+      <div class="metric-box"><div class="metric-num" id="mTopPremio">—</div><div class="metric-lbl">Premio top</div></div>
+      <div class="metric-box"><div class="metric-num" id="mDiaPico">—</div><div class="metric-lbl">Día pico</div></div>
+    </div>
     <!-- crecimiento -->
     <div class="chart-wrap" style="margin-bottom:14px">
       <div class="chart-title">Registros por semana</div>
       <div class="chart-bars" id="chartBars"></div>
+    </div>
+    <!-- premios más canjeados -->
+    <div class="adm-sec-tit" style="margin-top:4px">Premios más canjeados 🎁</div>
+    <div id="topPremiosList"></div>
+    <!-- heatmap días -->
+    <div class="adm-sec-tit" style="margin-top:20px">Actividad por día 📅</div>
+    <div class="chart-wrap">
+      <div class="heatmap-lbl" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center">
+        <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+      </div>
+      <div class="heatmap" id="heatmapDias"></div>
     </div>
     <!-- ranking -->
     <div class="adm-sec-tit" style="margin-top:4px">Ranking de clientes 🏆</div>
@@ -628,6 +707,59 @@ input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(1) opacity
     <!-- riesgo vencimiento -->
     <div class="adm-sec-tit" style="margin-top:20px">En riesgo de vencimiento ⚠️</div>
     <div id="riesgoList"></div>
+  </div>
+  <!-- notificaciones push -->
+  <div class="adm-sec">
+    <div class="adm-sec-tit">Notificación push 🔔</div>
+    <div class="campana-box">
+      <div style="font-size:12px;color:#7a6a5a;margin-bottom:12px">Se envía a todos los clientes que activaron las notificaciones.</div>
+      <div class="field-group">
+        <label class="field-label">Título</label>
+        <input class="field-input" id="pushTitulo" type="text" placeholder="Ej: ¡Puntos dobles hoy!">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Mensaje</label>
+        <input class="field-input" id="pushMsg" type="text" placeholder="Ej: Hasta las 12hs, venite a Bulgaro">
+      </div>
+      <button class="btn-pub" onclick="enviarPush()">Enviar notificación 🔔</button>
+    </div>
+  </div>
+  <!-- campañas mail -->
+  <div class="adm-sec">
+    <div class="adm-sec-tit">Campaña de mail 📧</div>
+    <div class="campana-box">
+      <div style="font-size:12px;font-weight:700;color:var(--negro);margin-bottom:10px">¿A quién le mandás?</div>
+      <div class="campana-seg">
+        <div class="seg-btn" id="seg-todos" onclick="selectSeg('todos')">👥 Todos</div>
+        <div class="seg-btn" id="seg-top10" onclick="selectSeg('top10')">🏆 Top 10</div>
+        <div class="seg-btn" id="seg-puntos" onclick="selectSeg('puntos')">⭐ Por puntos</div>
+        <div class="seg-btn" id="seg-inactivos" onclick="selectSeg('inactivos')">⚠️ Inactivos</div>
+      </div>
+      <div class="seg-param" id="param-puntos">
+        <label class="field-label">Clientes con más de</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input class="field-input" id="segPuntosMin" type="number" placeholder="100" style="max-width:100px">
+          <span style="font-size:13px;color:#7a6a5a">puntos</span>
+        </div>
+      </div>
+      <div class="seg-param" id="param-inactivos">
+        <label class="field-label">Sin actividad hace más de</label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input class="field-input" id="segDiasMin" type="number" placeholder="30" style="max-width:100px">
+          <span style="font-size:13px;color:#7a6a5a">días</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Asunto del mail</label>
+        <input class="field-input" id="campanaAsunto" type="text" placeholder="Ej: ¡Novedades en Bulgaro!">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Mensaje</label>
+        <textarea class="field-input" id="campanaMsg" rows="3" placeholder="Escribí el mensaje para tus clientes..." style="resize:none"></textarea>
+      </div>
+      <div class="campana-preview" id="campanaPreview">Seleccioná un segmento para ver a quiénes les llega.</div>
+      <button class="btn-pub" onclick="enviarCampana()">Enviar campaña ✉️</button>
+    </div>
   </div>
   <!-- exportar -->
   <div class="adm-sec">
@@ -947,6 +1079,9 @@ async function renderCliente() {
     }
   }
 
+  // Push banner
+  checkPushBanner();
+
   // Historial
   const hist = await dbSelect('historial', { cliente_id: currentUser.id }, { order:'created_at', asc:false, limit:8 });
   const histEl = document.getElementById('histList');
@@ -1066,6 +1201,128 @@ async function empRestarPuntos() {
   renderEmpActividad();
 }
 
+let empCanjeCliente = null;
+
+async function empBuscarCanje() {
+  const q = document.getElementById('empCanjeSearch').value.trim().toLowerCase();
+  if(!q) { toast('Ingresá DNI, nombre o email', true); return; }
+  const todos = await dbSelect('clientes');
+  const found = (todos||[]).find(c =>
+    (c.dni && c.dni === q) ||
+    c.nombre.toLowerCase().includes(q) || c.apellido.toLowerCase().includes(q) ||
+    c.mail.toLowerCase().includes(q)
+  );
+  if(!found) { toast('Cliente no encontrado', true); empCanjeCliente=null; document.getElementById('empCanjeChip').classList.remove('visible'); document.getElementById('empCanjeOpciones').innerHTML=''; return; }
+  empCanjeCliente = found;
+  document.getElementById('empCanjeChip').classList.add('visible');
+  document.getElementById('empCanjeChipAv').textContent = found.nombre[0].toUpperCase();
+  document.getElementById('empCanjeChipName').textContent = found.nombre + ' ' + found.apellido;
+  document.getElementById('empCanjeChipPts').textContent = found.puntos + ' puntos disponibles';
+
+  // Show available premios
+  const premios = await dbSelect('premios', { activo: true }, { order:'puntos', asc:true });
+  const opcEl = document.getElementById('empCanjeOpciones');
+  const disponibles = (premios||[]).filter(p => p.stock > 0 && found.puntos >= p.puntos);
+  const bloqueados = (premios||[]).filter(p => p.stock > 0 && found.puntos < p.puntos);
+
+  if(!premios || premios.length === 0) { opcEl.innerHTML = '<div class="empty-state" style="padding:10px 0">No hay premios activos.</div>'; return; }
+
+  let html = '';
+  if(disponibles.length > 0) {
+    html += '<div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--verde);margin:12px 0 8px">Puede canjear</div>';
+    disponibles.forEach(p => {
+      const safeId = p.id; const safeNombre = encodeURIComponent(p.nombre);
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,102,70,0.06);border:1px solid rgba(0,102,70,0.2);border-radius:11px;margin-bottom:8px"><span style="font-size:20px">' + p.emoji + '</span><div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--negro)">' + p.nombre + '</div><div style="font-size:11px;color:#7a6a5a">' + p.puntos + ' pts · ' + p.stock + ' en stock</div></div><button class="btn-sumar" style="padding:8px 12px;font-size:11px" data-id="' + safeId + '" data-nombre="' + safeNombre + '" data-pts="' + p.puntos + '" onclick="empEjecutarCanje(this)">Canjear</button></div>';
+    });
+  }
+  if(bloqueados.length > 0) {
+    html += '<div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#aaa;margin:12px 0 8px">Le faltan puntos</div>';
+    bloqueados.forEach(p => {
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.07);border-radius:11px;margin-bottom:8px;opacity:0.6"><span style="font-size:20px">' + p.emoji + '</span><div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--negro)">' + p.nombre + '</div><div style="font-size:11px;color:#aaa">Faltan ' + (p.puntos - found.puntos) + ' pts</div></div></div>';
+    });
+  }
+  opcEl.innerHTML = html;
+}
+
+async function empEjecutarCanje(btn) {
+  const premioId = btn.dataset.id;
+  const nombre = decodeURIComponent(btn.dataset.nombre);
+  const pts = parseInt(btn.dataset.pts);
+  if(!empCanjeCliente) return;
+  if(empCanjeCliente.puntos < pts) { toast('No tiene suficientes puntos', true); return; }
+  if(!confirm('¿Confirmar canje de "' + nombre + '" para ' + empCanjeCliente.nombre + '?')) return;
+
+  const nuevoPts = empCanjeCliente.puntos - pts;
+  const code = 'CANJE-' + empCanjeCliente.id.slice(0,4).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+  const desc = 'Premio canjeado: ' + nombre + ' — por ' + (empleadoActual ? empleadoActual.nombre : 'admin');
+
+  await dbUpdate('clientes', { id: empCanjeCliente.id }, { puntos: nuevoPts });
+  await dbInsert('historial', { cliente_id: empCanjeCliente.id, descripcion: desc, delta: -pts });
+  await dbInsert('canjes', { cliente_id: empCanjeCliente.id, premio_id: premioId, codigo: code, usado: true });
+  const pRows = await dbSelect('premios', { id: premioId });
+  if(pRows && pRows[0]) await dbUpdate('premios', { id: premioId }, { stock: pRows[0].stock - 1 });
+
+  empCanjeCliente.puntos = nuevoPts;
+  toast('¡Canje de "' + nombre + '" confirmado! ✓');
+  document.getElementById('empCanjeChip').classList.remove('visible');
+  document.getElementById('empCanjeOpciones').innerHTML = '';
+  document.getElementById('empCanjeSearch').value = '';
+  empCanjeCliente = null;
+  empTurnoActividad.unshift({
+    cliente: empCanjeCliente ? empCanjeCliente.nombre : '—',
+    monto: 0, pts: -pts, motivo: 'Premio: ' + nombre,
+    hora: new Date().toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'})
+  });
+  renderEmpActividad();
+}
+
+async function empValidarCanje() {
+  const codigo = document.getElementById('empCodigo').value.trim().toUpperCase();
+  if(!codigo) { toast('Ingresá el código', true); return; }
+  const res = document.getElementById('empCanjeResult');
+
+  const canjes = await dbSelect('canjes', { codigo });
+  if(!canjes || canjes.length === 0) {
+    res.innerHTML = '<div class="canje-result invalido"><div class="canje-titulo invalido">❌ Código inválido</div><div class="canje-meta">Este código no existe en el sistema.</div></div>';
+    return;
+  }
+  const canje = canjes[0];
+  if(canje.usado) {
+    res.innerHTML = '<div class="canje-result usado"><div class="canje-titulo usado">⚠️ Ya fue canjeado</div><div class="canje-meta">Este código ya fue utilizado anteriormente.</div></div>';
+    return;
+  }
+
+  // Get premio and cliente info
+  const premios = await dbSelect('premios', { id: canje.premio_id });
+  const clientes = await dbSelect('clientes', { id: canje.cliente_id });
+  const premio = premios && premios[0] ? premios[0] : null;
+  const cliente = clientes && clientes[0] ? clientes[0] : null;
+
+  res.innerHTML = `
+    <div class="canje-result valido">
+      <div class="canje-titulo valido">✓ Código válido</div>
+      <div class="canje-meta">
+        <strong>${cliente ? cliente.nombre + ' ' + cliente.apellido : '—'}</strong><br>
+        Premio: ${premio ? premio.emoji + ' ' + premio.nombre : '—'}<br>
+        Código: ${canje.codigo}
+      </div>
+      <button class="btn-confirmar-canje" onclick="empConfirmarCanje('${canje.id}')">Confirmar entrega ✓</button>
+    </div>`;
+}
+
+async function empConfirmarCanje(canjeId) {
+  await dbUpdate('canjes', { id: canjeId }, { usado: true });
+  document.getElementById('empCanjeResult').innerHTML = '<div class="canje-result valido"><div class="canje-titulo valido">✅ ¡Entrega confirmada!</div><div class="canje-meta">El premio fue marcado como entregado.</div></div>';
+  document.getElementById('empCodigo').value = '';
+  toast('Canje confirmado ✓');
+  empTurnoActividad.unshift({
+    cliente: 'Canje validado',
+    monto: 0, pts: 0, motivo: 'Premio entregado · ' + canjeId.slice(0,6),
+    hora: new Date().toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'})
+  });
+  renderEmpActividad();
+}
+
 function renderEmpActividad() {
   const el = document.getElementById('empActividad');
   if(empTurnoActividad.length===0) { el.innerHTML = '<div class="empty-state">Aún no registraste compras en este turno.</div>'; return; }
@@ -1103,6 +1360,7 @@ async function renderAdmin() {
   renderCrecimiento(clientes||[]);
   renderRanking(clientes||[]);
   renderRiesgo(clientes||[]);
+  renderMetricasExtra(clientes||[], histAll||[]);
 
   // Cumpleaños hoy
   const hoy = new Date();
@@ -1529,6 +1787,103 @@ async function admAjustarPuntos() {
 }
 
 // ══════════════════════════════
+// CAMPAÑAS DE MAIL
+// ══════════════════════════════
+let segActual = null;
+let segClientesCache = [];
+
+async function selectSeg(tipo) {
+  segActual = tipo;
+  document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('seg-' + tipo).classList.add('active');
+  document.querySelectorAll('.seg-param').forEach(p => p.classList.remove('visible'));
+  if(tipo === 'puntos') document.getElementById('param-puntos').classList.add('visible');
+  if(tipo === 'inactivos') document.getElementById('param-inactivos').classList.add('visible');
+  await actualizarPreviewCampana();
+}
+
+async function actualizarPreviewCampana() {
+  const clientes = await dbSelect('clientes', {}, { order:'puntos', asc:false });
+  const now = new Date();
+  let grupo = [];
+
+  if(segActual === 'todos') {
+    grupo = clientes || [];
+  } else if(segActual === 'top10') {
+    grupo = (clientes||[]).slice(0,10);
+  } else if(segActual === 'puntos') {
+    const min = parseInt(document.getElementById('segPuntosMin').value) || 0;
+    grupo = (clientes||[]).filter(c => c.puntos >= min);
+  } else if(segActual === 'inactivos') {
+    const dias = parseInt(document.getElementById('segDiasMin').value) || 30;
+    grupo = (clientes||[]).filter(c => {
+      const d = (now - new Date(c.created_at)) / (1000*60*60*24);
+      return d >= dias && c.puntos > 0;
+    });
+  }
+
+  segClientesCache = grupo;
+  const el = document.getElementById('campanaPreview');
+  if(grupo.length === 0) {
+    el.innerHTML = 'No hay clientes en este segmento.';
+  } else {
+    el.innerHTML = '<strong>' + grupo.length + ' clientes</strong> van a recibir este mail: ' +
+      grupo.slice(0,3).map(c => c.nombre).join(', ') +
+      (grupo.length > 3 ? ' y ' + (grupo.length-3) + ' más.' : '.');
+  }
+}
+
+async function enviarCampana() {
+  if(!segActual) { toast('Seleccioná un segmento primero', true); return; }
+  if(segClientesCache.length === 0) { toast('No hay clientes en este segmento', true); return; }
+  const asunto = document.getElementById('campanaAsunto').value.trim();
+  const msg = document.getElementById('campanaMsg').value.trim();
+  if(!asunto || !msg) { toast('Completá asunto y mensaje', true); return; }
+  if(!confirm('¿Enviar a ' + segClientesCache.length + ' clientes?')) return;
+
+  const btn = document.querySelector('[onclick="enviarCampana()"]');
+  btn.textContent = 'Enviando...'; btn.disabled = true;
+
+  let enviados = 0;
+  for(const c of segClientesCache) {
+    const html = `<div style="font-family:'Helvetica Neue',sans-serif;max-width:520px;margin:0 auto;background:#f7f2eb;border-radius:16px;overflow:hidden">
+      <div style="background:#006646;padding:28px;text-align:center">
+        <div style="font-size:11px;font-weight:800;letter-spacing:0.25em;color:rgba(255,255,255,0.6);text-transform:uppercase;margin-bottom:6px">BULGARO CAFÉ</div>
+        <div style="font-size:22px;font-weight:900;color:#fff">${asunto}</div>
+      </div>
+      <div style="padding:28px">
+        <p style="font-size:14px;color:#333;line-height:1.8">Hola <strong>${c.nombre}</strong>,</p>
+        <p style="font-size:14px;color:#333;line-height:1.8;margin-top:8px">${msg.split(String.fromCharCode(10)).join('<br>')}</p>
+        <div style="text-align:center;margin-top:24px">
+          <a href="https://bulgaroclub.netlify.app" style="display:inline-block;background:#b68150;color:#fff;font-weight:800;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;padding:14px 28px;border-radius:40px;text-decoration:none">Ver mis puntos →</a>
+        </div>
+      </div>
+      <div style="background:#e8e0d0;padding:16px 28px;text-align:center">
+        <p style="font-size:11px;color:#aaa;margin:0">Bulgaro Café · Bahía Blanca</p>
+      </div>
+    </div>`;
+    try {
+      const r = await fetch('https://api.resend.com/emails', {
+        method:'POST',
+        headers:{'Authorization':'Bearer re_hnnqUhwU_HEDMVrxpvEE989hnMjFaQMki','Content-Type':'application/json'},
+        body: JSON.stringify({ from:'Bulgaro Club <onboarding@resend.dev>', to:[c.mail], subject: asunto, html })
+      });
+      if(r.ok) enviados++;
+    } catch(e) {}
+    // Small delay to avoid rate limits
+    await new Promise(r => setTimeout(r, 200));
+  }
+
+  btn.textContent = 'Enviar campaña ✉️'; btn.disabled = false;
+  toast('Campaña enviada a ' + enviados + ' clientes ✓');
+  document.getElementById('campanaAsunto').value = '';
+  document.getElementById('campanaMsg').value = '';
+  segActual = null;
+  document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('campanaPreview').innerHTML = 'Seleccioná un segmento para ver a quiénes les llega.';
+}
+
+// ══════════════════════════════
 // INTELIGENCIA
 // ══════════════════════════════
 function renderCrecimiento(clientes) {
@@ -1625,6 +1980,70 @@ function renderRiesgo(clientes) {
     div.dataset.mail = c.mail; div.dataset.nombre = c.nombre;
     div.innerHTML = '<div class="riesgo-av advertencia">' + c.nombre[0].toUpperCase() + '</div><div class="riesgo-info"><div class="riesgo-name">' + c.nombre + ' ' + c.apellido + '</div><div class="riesgo-meta">' + c.mail + ' · hace ' + dias + ' días</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="riesgo-pts advertencia">' + c.puntos + ' pts</div><button class="btn-contactar" onclick="var p=this.closest(\"[data-mail]\");contactarRiesgo(p.dataset.mail,p.dataset.nombre)">Contactar</button></div>';
     el.appendChild(div);
+  });
+}
+
+async function renderMetricasExtra(clientes, histAll) {
+  // Pts promedio
+  const conPuntos = clientes.filter(c => c.puntos > 0);
+  const promedio = conPuntos.length > 0 ? Math.round(conPuntos.reduce((s,c) => s+c.puntos, 0) / conPuntos.length) : 0;
+  document.getElementById('mPtsPromedio').textContent = promedio;
+
+  // Top premio canjeado
+  const canjes = await dbSelect('canjes');
+  const premios = await dbSelect('premios');
+  const premioMap = {};
+  (premios||[]).forEach(p => premioMap[p.id] = p);
+  const conteo = {};
+  (canjes||[]).forEach(c => { if(c.premio_id) conteo[c.premio_id] = (conteo[c.premio_id]||0)+1; });
+  const topId = Object.entries(conteo).sort((a,b)=>b[1]-a[1])[0]?.[0];
+  const topPremio = topId && premioMap[topId] ? premioMap[topId] : null;
+  document.getElementById('mTopPremio').textContent = topPremio ? topPremio.emoji : '—';
+
+  // Día pico (basado en historial)
+  const dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const diasCount = [0,0,0,0,0,0,0];
+  histAll.filter(h => h.delta > 0).forEach(h => {
+    const d = new Date(h.created_at).getDay();
+    diasCount[d]++;
+  });
+  const maxDia = diasCount.indexOf(Math.max(...diasCount));
+  document.getElementById('mDiaPico').textContent = dias[maxDia];
+
+  // Top premios canjeados list
+  const topEl = document.getElementById('topPremiosList');
+  const sorted = Object.entries(conteo).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxCanjes = sorted[0]?.[1] || 1;
+  if(sorted.length === 0) {
+    topEl.innerHTML = '<div class="empty-state">Aún no hay canjes registrados.</div>';
+  } else {
+    topEl.innerHTML = '';
+    sorted.forEach(([id, cant]) => {
+      const p = premioMap[id];
+      if(!p) return;
+      const pct = Math.round((cant/maxCanjes)*100);
+      const div = document.createElement('div');
+      div.className = 'top-premio';
+      div.innerHTML = '<span style="font-size:20px">' + p.emoji + '</span><div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--negro);margin-bottom:4px">' + p.nombre + '</div><div class="top-premio-bar"><div class="top-premio-fill" style="width:' + pct + '%"></div></div></div><span style="font-size:13px;font-weight:800;color:var(--marron);margin-left:8px">' + cant + '</span>';
+      topEl.appendChild(div);
+    });
+  }
+
+  // Heatmap días
+  const heatEl = document.getElementById('heatmapDias');
+  heatEl.innerHTML = '';
+  // Reorder: Mon=1 to Sun=0
+  const ordenado = [1,2,3,4,5,6,0].map(i => diasCount[i]);
+  const maxHeat = Math.max(...ordenado, 1);
+  const heatColors = ['rgba(0,102,70,0.06)','rgba(0,102,70,0.15)','rgba(0,102,70,0.3)','rgba(0,102,70,0.5)','rgba(0,102,70,0.75)','rgba(0,102,70,0.9)'];
+  ordenado.forEach((val, i) => {
+    const intensity = Math.min(5, Math.floor((val/maxHeat)*5));
+    const div = document.createElement('div');
+    div.className = 'heatmap-cell';
+    div.style.background = heatColors[intensity];
+    div.style.color = intensity > 2 ? '#fff' : 'rgba(42,31,20,0.5)';
+    div.textContent = val > 0 ? val : '';
+    heatEl.appendChild(div);
   });
 }
 
@@ -1781,6 +2200,67 @@ async function exportPDF(tipo) {
 
 function today() {
   return new Date().toISOString().slice(0,10);
+}
+
+// ══════════════════════════════
+// PUSH NOTIFICATIONS — OneSignal
+// ══════════════════════════════
+const ONESIGNAL_APP_ID = '474c8f6e-67f0-4df9-9ff7-3bf9b906ca19';
+const ONESIGNAL_API_KEY = 'os_v2_app_i5gi63th6bg7th7xhp43sbwkdeywp4ilwv4ea7nojgnxcnl3et2icyndi7zpogou6o3qplvry5qrpjv37vwp7ijjwhnd32qljgpeq2a';
+
+async function activarPush() {
+  try {
+    await window.OneSignal.Notifications.requestPermission();
+    const granted = window.OneSignal.Notifications.permission;
+    if(granted) {
+      document.getElementById('pushBanner').style.display = 'none';
+      toast('¡Notificaciones activadas! 🔔');
+    }
+  } catch(e) {
+    toast('No se pudieron activar las notificaciones', true);
+  }
+}
+
+function checkPushBanner() {
+  if(typeof window.OneSignal === 'undefined') return;
+  OneSignalDeferred.push(function(OneSignal) {
+    const perm = OneSignal.Notifications.permission;
+    const banner = document.getElementById('pushBanner');
+    if(!perm && banner) banner.style.display = 'flex';
+  });
+}
+
+async function enviarPush() {
+  const titulo = document.getElementById('pushTitulo').value.trim();
+  const msg = document.getElementById('pushMsg').value.trim();
+  if(!titulo || !msg) { toast('Completá título y mensaje', true); return; }
+
+  try {
+    const r = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + ONESIGNAL_API_KEY
+      },
+      body: JSON.stringify({
+        app_id: ONESIGNAL_APP_ID,
+        included_segments: ['All'],
+        headings: { en: titulo },
+        contents: { en: msg },
+        url: 'https://bulgaroclub.netlify.app'
+      })
+    });
+    const data = await r.json();
+    if(r.ok && data.id) {
+      toast('¡Push enviado! 🔔');
+      document.getElementById('pushTitulo').value = '';
+      document.getElementById('pushMsg').value = '';
+    } else {
+      toast('Necesitás la REST API key de OneSignal', true);
+    }
+  } catch(e) {
+    toast('Error al enviar la notificación', true);
+  }
 }
 
 // ══════════════════════════════
